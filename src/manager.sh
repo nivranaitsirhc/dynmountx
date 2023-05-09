@@ -175,8 +175,8 @@ install_me() {
 
 main_normal() {
     # check if base and original apk are present
-    [ ! -f "$path_file_apk_module_base" ] || [ ! -f "$path_file_apk_module_orig" ] && {
-        logme error "$STAGE" "main_normal() - $PROC - missing base.apk or original.apk"
+    [ ! -f "$path_file_apk_module_base" ] && {
+        logme error "$STAGE" "main_normal() - $PROC - missing base.apk"
         return 1
     }
 
@@ -269,8 +269,24 @@ main() {
                 set_permissions_recursive "$path_dir_apps_module/$PROC" "root" "root" 0755 0644 u:object_r:magisk_file:s0
                 install_me || return 1
                 return 0
-            else               
-                logme debug "$STAGE" "main() - tag:install - failed, missing storage base or original apk."
+            elif [ -f "$path_file_apk_storage_base" ] && [ ! -f "$path_file_apk_storage_orig" ];then
+                logme debug "$STAGE" "main() - tag:install - trying bind mode only."
+                version_apk_storage_base=""
+                version_installed=""
+                get_apk_version version_apk_storage_base "$path_file_apk_storage_base"
+                get_apk_version version_installed       "$PROC"
+                if [ "$version_apk_storage_base" = "$version_installed" ];then
+                    logme debug "$STAGE" "main() - tag:install - copying storage base to module dir"
+                    cp -rf "$path_file_apk_storage_base" "$path_file_apk_module_base"
+                    set_permissions_recursive "$path_dir_apps_module/$PROC" "root" "root" 0755 0644 u:object_r:magisk_file:s0
+                    bind_me || return 1
+                    return 0
+                fi
+                logme debug "$STAGE" "main() - tag:install - version mismatch, installed=$version_installed base=$version_apk_storage_base"
+                logme error "$STAGE" "main() - tag:install - cannot proceed with bind mode due to installed apk does not match with base apk"
+                return 1
+            else              
+                logme error "$STAGE" "main() - tag:install - failed, missing storage base or original apk."
                 touch "$path_dir_apps_storage/$PROC/install_failed"
             fi
         }
