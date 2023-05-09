@@ -42,6 +42,8 @@ path_file_tag_force="$path_dir_apps_storage/$PROC/force"
 path_file_tag_mirror="$path_dir_apps_storage/$PROC/mirror"
 path_file_tag_remove="$path_dir_apps_storage/$PROC/remove"
 path_file_tag_install="$path_dir_apps_storage/$PROC/install"
+# apps tag
+path_file_tag_mounted="$path_dir_apps_module/$PROC/mounted"
 
 
 # dummy fn
@@ -51,27 +53,6 @@ logme(){ :; }
     # logger
     [ -f "$MODDIR/lib/logger.sh" ] && . "$MODDIR/lib/logger.sh"
 }
-
-# what is expected
-# module 
-# revanced-manager/@apps
-# local/tmp/revanced-manger/@apps
-# installed app /@apps
-
-# case 1 installed==module==local   do nothing
-# case 2 installed>=module==local   install module
-# case 3 installed<=module==local   install module
-# case 4 installed==module>=local   install local & copy local-->module
-# case 5 installed==module<=local   install local & copy local-->module
-# case 6 installed<>module<>local   install local & copy local-->module
-
-# case 1 installed==module  do nothing
-# case 2 installed!=module  install module
-
-# version checking
-# install   always check
-# module    check-once use version file
-# local     alwasy check when available
 
 
 get_apk_version() {
@@ -105,6 +86,16 @@ set_permissions_recursive() {
   done
 }
 
+start_me() {
+    if [ ! -f "$path_file_tag_mounted" ];then
+        logme debug "$STAGE" "start_me() - restarting $PROC"
+        am start -n "$(cmd package resolve-activity --brief "$PROC" | tail -n 1)"
+        touch "$path_file_tag_mounted"
+        # terminate the script
+        exit 0
+    fi
+}
+
 bind_me() {
     logme debug "$STAGE" "bind_me() - $path_file_apk_module_base"
     logme debug "$STAGE" "bind_me() - stopping app.."
@@ -131,6 +122,8 @@ bind_me() {
 
     logme debug "$STAGE" "bind_me() - enabling app.."
     pm enable "$PROC"
+
+    start_me
 }
 
 install_me() {
@@ -171,6 +164,8 @@ install_me() {
 
     logme debug "$STAGE" "install_me() - enabling app.."
     pm enable "$PROC"
+
+    start_me
 }
 
 main_normal() {
@@ -334,3 +329,7 @@ main() {
     return 1
 }
 main
+# cleanup
+[ -f "$path_file_tag_mounted" ] && {
+    rm -rf "$path_file_tag_mounted"
+}
