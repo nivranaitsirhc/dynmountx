@@ -1,4 +1,6 @@
 # Dynamic Mount ~ Changelog
+## v1 - (v100100)
+* app will now restart after bind or mount.
 ## v1 - (v100006)
 * allowed tag file install of base apk only. orignal apk is now optional but it still recommended to be present. original apk is used to reinstall the base apk when google playstore forcefully update.
 ## v1 - (v100005)
