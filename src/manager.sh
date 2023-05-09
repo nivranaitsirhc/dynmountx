@@ -144,7 +144,7 @@ install_me() {
 
     logme debug "$STAGE" "install_me() - unmounting remants.."
     mount | grep "$PROC" | cut -d ' ' -f 3 | while IFS= read -r base_apk || [ -n "$base_apk" ]; do
-        logme debug "$STAGE" "bind_me() - unmounting: $base_apk"
+        logme debug "$STAGE" "install_me() - unmounting: $base_apk"
         umount -l "$base_apk"
     done
 
@@ -154,6 +154,13 @@ install_me() {
     logme debug "$STAGE" "install_me() - mounting base apk"
     installed_path="$(pm path "$PROC" | head -1 | sed 's/^package://g' )"
     mount -o bind "$path_file_apk_module_base" "$installed_path" || return 1
+    
+    version_apk_module_base=""
+    version_apk_module_orig=""
+    get_apk_version version_apk_module_base "$path_file_apk_module_base"
+    get_apk_version version_apk_module_orig "$path_file_apk_module_orig"
+    printf %s "$version_apk_module_base" > "$path_file_tag_version_base"
+    printf %s "$version_apk_module_orig" > "$path_file_tag_version_orig"
 
     logme debug "$STAGE" "install_me() - verifying mount"
     if mount | grep -q "$installed_path";then
