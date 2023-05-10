@@ -12,7 +12,7 @@
 # check if logfile is defined
 [[ ! -v path_file_logs ]] && {
     [ ! -d "$MODDIR/logs" ] && mkdir -p "$MODDIR/logs"
-    path_file_logs="$MODDIR/logs/module.log"
+    export path_file_logs="$MODDIR/logs/module.log"
 }
 
 # check if config_debug
@@ -66,4 +66,4 @@ logme() {
     return 0
 }
 
-LOGER_MODULE="loaded"
+LOGGER_MODULE="loaded"

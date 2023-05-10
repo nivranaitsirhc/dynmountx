@@ -13,7 +13,6 @@ MIRROR="$MAGISKTMP/.magisk/mirror"
 # magisk Busybox & module local binaries
 PATH="$MODDIR/bin:$PATH:$MAGISKTMP/.magisk/busybox:$PATH"
 
-
 # config-static_variables 
 # -----------------------
 # apps folder
@@ -24,15 +23,13 @@ path_dir_apps_storage="$path_dir_storage/apps"
 path_file_tag_mounted="$path_dir_apps_module/$PROC/mounted"
 path_file_tag_version_base="$path_dir_apps_module/$PROC/version_base"
 path_file_tag_version_orig="$path_dir_apps_module/$PROC/version_orig"
-
 # apk files
 path_file_apk_module_base="$path_dir_apps_module/$PROC/base.apk"
 path_file_apk_module_orig="$path_dir_apps_module/$PROC/original.apk"
 path_file_apk_storage_base="$path_dir_apps_storage/$PROC/base.apk"
 path_file_apk_storage_orig="$path_dir_apps_storage/$PROC/original.apk"
-
 # tag files config
-#path_file_tag_debug="$path_dir_apps_storage/debug"
+path_file_tag_debug="$path_dir_apps_storage/debug"
 path_file_tag_skip="$path_dir_apps_storage/$PROC/skip"
 path_file_tag_force="$path_dir_apps_storage/$PROC/force"
 path_file_tag_mirror="$path_dir_apps_storage/$PROC/mirror"
@@ -41,7 +38,6 @@ path_file_tag_install="$path_dir_apps_storage/$PROC/install"
 # apps tag
 path_file_tag_mounted="$path_dir_apps_module/$PROC/mounted"
 
-
 # dummy fn
 logme(){ :; }
 # source lib
@@ -49,14 +45,17 @@ logme(){ :; }
     # logger
     [ -f "$MODDIR/lib/logger.sh" ] && . "$MODDIR/lib/logger.sh"
 }
+# logger configs
+logger_process=$(printf "%-6s %-6s" "$UID" "$PID")
+logger_special=$(printf "%-18s - %s" "$(basename "$0"):$STAGE" "$PROC")
 
 # sanity checks
 [ ! -d "$MIRROR/data" ] && {
-    logme error "failed to detect mirror mount"
+    logme error "we failed to detect magisk mirror mount. skipping.."
     return 1
 }
-[[ -v PROC ]] && {
-    logme error "PROC is not defined"
+[[ ! -v PROC ]] && {
+    logme error "we are expecting PROC but it is not defined. skipping.."
     return 1
 }
 # cleanup
@@ -64,7 +63,7 @@ logme(){ :; }
     logme stats "failed to detect mirror mount"
     rm -rf "$path_file_tag_mounted"
 }
-
+# get apk version
 get_apk_version() {
     # 1 - variable to return
     # 2 - apk_path
@@ -78,7 +77,7 @@ get_apk_version() {
         eval "$1=$(aapt2 dump badging "$2" | grep versionName | sed -e "s/.*versionName='//" -e "s/' .*//")"
     fi
 }
-
+# set permission
 set_permissions() {
     chown "$2:$3" "$1"    || return 1
     chmod "$4" "$1"       || return 1
@@ -86,7 +85,7 @@ set_permissions() {
     [ -z "$CON" ] && CON=u:object_r:system_file:s0
     chcon "$CON" "$1"     || return 1
 }
-
+# set permission recursively
 set_permissions_recursive() {
   find "$1" -type d 2>/dev/null | while read dir; do
     set_permissions "$dir" "$2" "$3" "$4" "$6"
@@ -95,7 +94,7 @@ set_permissions_recursive() {
     set_permissions "$file" "$2" "$3" "$5" "$6"
   done
 }
-
+# restart the app and prevent re-run of the script
 start_me() {
     if [ ! -f "$path_file_tag_mounted" ];then
         logme debug "start_me() - restarting $PROC"
@@ -105,7 +104,7 @@ start_me() {
         exit 0
     fi
 }
-
+# mount bind app
 bind_me() {
     logme debug "bind_me() - $path_file_apk_module_base"
     logme debug "bind_me() - stopping app.."
@@ -123,19 +122,19 @@ bind_me() {
     installed_path="$(pm path "$PROC" | head -1 | sed 's/^package://g' )"
     mount -o bind "$path_file_apk_module_base" "$installed_path" || return 1
 
-    logme debug "bind_me() - verifying mount"
+    logme debug "bind_me() - verifying mount.."
     if mount | grep -q "$installed_path";then
         logme stats "bind_me() - Mounted!"
     else
-        logme error "bind_me() - Failed to Mount."
+        logme error "bind_me() - Failed to Mount.."
     fi
 
-    logme debug "bind_me() - enabling app.."
+    logme debug "bind_me() - Enabling App.."
     pm enable "$PROC"
 
     start_me
 }
-
+# install apk and mount bind app
 install_me() {
     # install apk
 
@@ -172,12 +171,12 @@ install_me() {
         logme error "install_me() - Failed to Mount."
     fi
 
-    logme debug "install_me() - enabling app.."
+    logme debug "install_me() - Enabling App.."
     pm enable "$PROC"
 
     start_me
 }
-
+# normal main
 main_normal() {
     # check if base and original apk are present
     [ ! -f "$path_file_apk_module_base" ] && {
@@ -236,6 +235,7 @@ main_normal() {
         fi
     fi
 }
+# main process
 main() {
     logme debug "main() - processing"
 
@@ -312,7 +312,7 @@ main() {
             # skip
             # skip mount
             logme debug "main() - tag:skip"
-            logme debug "main() - tag:skip - exiting.."
+            logme debug "main() - tag:skip - skipping app.."
             return 0
         }
         [ -f "$path_file_tag_remove" ] && {
@@ -333,8 +333,11 @@ main() {
     # proceed with normal checks
     main_normal
 }
-
-# logger configs
-logger_process=$(printf "%-6s %-6s %-6s" "$UID" "$USERID" "$PID")
-logger_special=$(printf "%-18s - %s" "manager.sh:$STAGE" "$PROC")
 main
+# special tag debug
+if  [[ -v LOGGER_MODULE ]] && [ -f "$path_file_tag_debug" ]; then
+    [ -f "$path_file_logs" ] && {
+        cat "$path_file_logs" >> "$path_dir_storage/module.logs"
+        printf "" > "$path_file_logs"
+    }
+fi
