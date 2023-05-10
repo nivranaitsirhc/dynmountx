@@ -1,4 +1,6 @@
 # Dynamic Mount ~ Changelog
+## v1 - (v100103)
+* added checks to prevent multiple manager.sh calls.
 ## v1 - (v100102)
 * added debug tag file. this will transfer logging to internal storage
 * added send notification function
