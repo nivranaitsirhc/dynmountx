@@ -61,8 +61,9 @@ logger_special=$(printf "%-18s - %s" "$(basename "$0"):$STAGE" "$PROC")
 }
 # cleanup
 [ -f "$path_file_tag_mounted" ] && {
-    logme stats "failed to detect mirror mount"
+    logme stats "detected restart tag file. skipping.."
     rm -rf "$path_file_tag_mounted"
+    return 0
 }
 # prevent multiple process
 [ -f "$path_file_tag_process" ] && {
