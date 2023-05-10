@@ -23,6 +23,7 @@ path_dir_apps_storage="$path_dir_storage/apps"
 path_file_tag_mounted="$path_dir_apps_module/$PROC/mounted"
 path_file_tag_version_base="$path_dir_apps_module/$PROC/version_base"
 path_file_tag_version_orig="$path_dir_apps_module/$PROC/version_orig"
+path_file_tag_process="$path_dir_apps_module/$PROC/process"
 # apk files
 path_file_apk_module_base="$path_dir_apps_module/$PROC/base.apk"
 path_file_apk_module_orig="$path_dir_apps_module/$PROC/original.apk"
@@ -62,6 +63,17 @@ logger_special=$(printf "%-18s - %s" "$(basename "$0"):$STAGE" "$PROC")
 [ -f "$path_file_tag_mounted" ] && {
     logme stats "failed to detect mirror mount"
     rm -rf "$path_file_tag_mounted"
+}
+# prevent multiple process
+[ -f "$path_file_tag_process" ] && {
+    # check if process is still running
+    _PID="$(cat "$path_file_tag_process")"
+    pidof "$_PID" && {
+        logme stats "$_PID is still running. exiting this execution."
+        return 0
+    }
+    # remove path process
+    rm -rf "$path_file_tag_process"
 }
 # send notifications
 send_notification() {
@@ -105,7 +117,7 @@ start_me() {
         am start -n "$(cmd package resolve-activity --brief "$PROC" | tail -n 1)"
         touch "$path_file_tag_mounted"
         # terminate the script
-        exit 0
+        return 0
     fi
 }
 # mount bind app
@@ -340,6 +352,9 @@ main() {
     main_normal
 }
 main
+# clean up calls
+# store the current PID
+printf "$PID" > "$path_file_tag_process"
 # special tag debug
 if  [[ -v LOGGER_MODULE ]] && [ -f "$path_file_tag_debug" ]; then
     [ -f "$path_file_logs" ] && {
