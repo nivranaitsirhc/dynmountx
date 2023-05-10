@@ -63,6 +63,10 @@ logger_special=$(printf "%-18s - %s" "$(basename "$0"):$STAGE" "$PROC")
     logme stats "failed to detect mirror mount"
     rm -rf "$path_file_tag_mounted"
 }
+# send notifications
+send_notification() {
+    su 2000 -c "cmd notification post -S bigtext -t 'DynMountX' 'Tag' '$(printf "$1")'"
+}
 # get apk version
 get_apk_version() {
     # 1 - variable to return
@@ -125,6 +129,7 @@ bind_me() {
     logme debug "bind_me() - verifying mount.."
     if mount | grep -q "$installed_path";then
         logme stats "bind_me() - Mounted!"
+        send_notification "Successfully Mounted!\n$PROC"
     else
         logme error "bind_me() - Failed to Mount.."
     fi
@@ -167,6 +172,7 @@ install_me() {
     logme debug "install_me() - verifying mount"
     if mount | grep -q "$installed_path";then
         logme stats "install_me() - Mounted!"
+        send_notification "Successfully Mounted!\n$PROC"
     else
         logme error "install_me() - Failed to Mount."
     fi
