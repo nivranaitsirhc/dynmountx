@@ -55,16 +55,26 @@ logme(){ :; }
 }
 
 
+[ ! -d "$MIRROR/data" ] && {
+    logme error "$STAGE" "$PROC - failed to detect mirror mount"
+    return 1
+}
+# cleanup
+[ -f "$path_file_tag_mounted" ] && {
+    logme stats "$STAGE" "$PROC - failed to detect mirror mount"
+    rm -rf "$path_file_tag_mounted"
+}
+
 get_apk_version() {
     # 1 - variable to return
     # 2 - apk_path
-    logme debug "$STAGE" "get_apk_version() -> $2" 
+    logme debug "$STAGE" "$PROC - get_apk_version() -> $2" 
     [ -z "$2" ] && return 1
     if [ -n "${2##*\/*}" ]; then
-        logme debug "$STAGE" "get_apk_version() -> using dumpsys"
+        logme debug "$STAGE" "$PROC - get_apk_version() -> using dumpsys"
         eval "$1=$(dumpsys package "$2" | grep versionName | cut -d= -f 2 | sed -n '1p')"
     elif [ -f "$2" ]; then
-        logme debug "$STAGE" "get_apk_version() -> using aapt"
+        logme debug "$STAGE" "$PROC - get_apk_version() -> using aapt"
         eval "$1=$(aapt2 dump badging "$2" | grep versionName | sed -e "s/.*versionName='//" -e "s/' .*//")"
     fi
 }
@@ -88,7 +98,7 @@ set_permissions_recursive() {
 
 start_me() {
     if [ ! -f "$path_file_tag_mounted" ];then
-        logme debug "$STAGE" "start_me() - restarting $PROC"
+        logme debug "$STAGE" "$PROC - start_me() - restarting $PROC"
         am start -n "$(cmd package resolve-activity --brief "$PROC" | tail -n 1)"
         touch "$path_file_tag_mounted"
         # terminate the script
@@ -97,30 +107,30 @@ start_me() {
 }
 
 bind_me() {
-    logme debug "$STAGE" "bind_me() - $path_file_apk_module_base"
-    logme debug "$STAGE" "bind_me() - stopping app.."
+    logme debug "$STAGE" "$PROC - bind_me() - $path_file_apk_module_base"
+    logme debug "$STAGE" "$PROC - bind_me() - stopping app.."
     am force-stop "$PROC"
-    logme debug "$STAGE" "bind_me() - disabling app.."
+    logme debug "$STAGE" "$PROC - bind_me() - disabling app.."
     pm disable "$PROC"
 
-    logme debug "$STAGE" "bind_me() - unmounting remants.."
+    logme debug "$STAGE" "$PROC - bind_me() - unmounting remants.."
     mount | grep "$PROC" | cut -d ' ' -f 3 | while IFS= read -r base_apk || [ -n "$base_apk" ]; do
-        logme debug "$STAGE" "bind_me() - unmounting: $base_apk"
+        logme debug "$STAGE" "$PROC - bind_me() - unmounting: $base_apk"
         umount -l "$base_apk"
     done
 
-    logme debug "$STAGE" "bind_me() - mounting.."
+    logme debug "$STAGE" "$PROC - bind_me() - mounting.."
     installed_path="$(pm path "$PROC" | head -1 | sed 's/^package://g' )"
     mount -o bind "$path_file_apk_module_base" "$installed_path" || return 1
 
-    logme debug "$STAGE" "bind_me() - verifying mount"
+    logme debug "$STAGE" "$PROC - bind_me() - verifying mount"
     if mount | grep -q "$installed_path";then
-        logme debug "$STAGE" "bind_me() - Mounted!"
+        logme debug "$STAGE" "$PROC - bind_me() - Mounted!"
     else
-        logme error "$STAGE" "bind_me() - Failed to Mount."
+        logme error "$STAGE" "$PROC - bind_me() - Failed to Mount."
     fi
 
-    logme debug "$STAGE" "bind_me() - enabling app.."
+    logme debug "$STAGE" "$PROC - bind_me() - enabling app.."
     pm enable "$PROC"
 
     start_me
@@ -129,22 +139,22 @@ bind_me() {
 install_me() {
     # install apk
 
-    logme debug "$STAGE" "install_me() - $path_file_apk_module_base"
-    logme debug "$STAGE" "install_me() - stopping app.."
+    logme debug "$STAGE" "$PROC - install_me() - $path_file_apk_module_base"
+    logme debug "$STAGE" "$PROC - install_me() - stopping app.."
     am force-stop "$PROC"
-    logme debug "$STAGE" "install_me() - disabling app.."
+    logme debug "$STAGE" "$PROC - install_me() - disabling app.."
     pm disable "$PROC"
 
-    logme debug "$STAGE" "install_me() - unmounting remants.."
+    logme debug "$STAGE" "$PROC - install_me() - unmounting remants.."
     mount | grep "$PROC" | cut -d ' ' -f 3 | while IFS= read -r base_apk || [ -n "$base_apk" ]; do
-        logme debug "$STAGE" "install_me() - unmounting: $base_apk"
+        logme debug "$STAGE" "$PROC - install_me() - unmounting: $base_apk"
         umount -l "$base_apk"
     done
 
-    logme debug "$STAGE" "install_me() - installing original apk.."
+    logme debug "$STAGE" "$PROC - install_me() - installing original apk.."
     pm install -d "$path_file_apk_module_orig" || return 1
 
-    logme debug "$STAGE" "install_me() - mounting base apk"
+    logme debug "$STAGE" "$PROC - install_me() - mounting base apk"
     installed_path="$(pm path "$PROC" | head -1 | sed 's/^package://g' )"
     mount -o bind "$path_file_apk_module_base" "$installed_path" || return 1
     
@@ -155,14 +165,14 @@ install_me() {
     printf %s "$version_apk_module_base" > "$path_file_tag_version_base"
     printf %s "$version_apk_module_orig" > "$path_file_tag_version_orig"
 
-    logme debug "$STAGE" "install_me() - verifying mount"
+    logme debug "$STAGE" "$PROC - install_me() - verifying mount"
     if mount | grep -q "$installed_path";then
-        logme debug "$STAGE" "install_me() - Mounted!"
+        logme debug "$STAGE" "$PROC - install_me() - Mounted!"
     else
-        logme error "$STAGE" "install_me() - Failed to Mount."
+        logme error "$STAGE" "$PROC - install_me() - Failed to Mount."
     fi
 
-    logme debug "$STAGE" "install_me() - enabling app.."
+    logme debug "$STAGE" "$PROC - install_me() - enabling app.."
     pm enable "$PROC"
 
     start_me
@@ -171,7 +181,7 @@ install_me() {
 main_normal() {
     # check if base and original apk are present
     [ ! -f "$path_file_apk_module_base" ] && {
-        logme error "$STAGE" "main_normal() - $PROC - missing base.apk"
+        logme error "$STAGE" "$PROC - main_normal() - missing base.apk"
         return 1
     }
 
@@ -181,17 +191,17 @@ main_normal() {
     version_apk_module_orig=""
     version_installed=""
 
-    logme debug "$STAGE" "main_normal() - $PROC - getting versions.."
+    logme debug "$STAGE" "$PROC - main_normal() - getting versions.."
 
     if  [ -f "$path_file_tag_version_base" ] && \
         [ -f "$path_file_tag_version_base" ] && \
         grep '[^[:space:]]' "$path_file_tag_version_base" && \
         grep '[^[:space:]]' "$path_file_tag_version_orig"; then
-        logme debug "$STAGE" "main_normal() - $PROC - using version files.."
+        logme debug "$STAGE" "$PROC - main_normal() - using version files.."
         version_apk_module_base=$(cat "$path_file_tag_version_base")
         version_apk_module_orig=$(cat "$path_file_tag_version_orig")
     else
-        logme debug "$STAGE" "main_normal() - $PROC - creating version files.."
+        logme debug "$STAGE" "$PROC - main_normal() - creating version files.."
         get_apk_version version_apk_module_base "$path_file_apk_module_base"
         get_apk_version version_apk_module_orig "$path_file_apk_module_orig"
         printf %s "$version_apk_module_base" > "$path_file_tag_version_base"
@@ -200,34 +210,34 @@ main_normal() {
     
     get_apk_version version_installed "$PROC"
     
-    logme debug "$STAGE" "main_normal() - $PROC - detected versions:"
-    logme debug "$STAGE" "main_normal() - $PROC - installed   - $version_installed"
-    logme debug "$STAGE" "main_normal() - $PROC - module_base - $version_apk_module_base"
-    logme debug "$STAGE" "main_normal() - $PROC - module_orig - $version_apk_module_orig"
+    logme debug "$STAGE" "$PROC - main_normal() - detected versions:"
+    logme debug "$STAGE" "$PROC - main_normal() - installed   - $version_installed"
+    logme debug "$STAGE" "$PROC - main_normal() - module_base - $version_apk_module_base"
+    logme debug "$STAGE" "$PROC - main_normal() - module_orig - $version_apk_module_orig"
 
     # check version installed vs module
     if [ "$version_installed" != "$version_apk_module_base" ];then
-        logme error "$STAGE" "main_normal() - $PROC - version mismatch: installed=$version_installed, module=$version_apk_module_base"
+        logme error "$STAGE" "$PROC - main_normal() - version mismatch: installed=$version_installed, module=$version_apk_module_base"
         # check if base.apk matches original.apk
         [ "$version_apk_module_base" != "$version_apk_module_orig" ] && {
-            logme error "$STAGE" "main_normal() - $PROC - version mismatch: base=$version_apk_module_base, original=$version_apk_module_orig"
+            logme error "$STAGE" "$PROC - main_normal() - version mismatch: base=$version_apk_module_base, original=$version_apk_module_orig"
             # exit
             return 1
         }
-        logme stats "$STAGE" "main_normal() - reinstalling..., calling install_me()"
+        logme stats "$STAGE" "$PROC - main_normal() - reinstalling..., calling install_me()"
         install_me
     elif [ "$version_installed" = "$version_apk_module_base" ];then
         # versions are aligned check if mounted
         if mount | grep -q "$installed_path";then
-            logme stats "$STAGE" "main_normal() - already mounted."
+            logme stats "$STAGE" "$PROC - main_normal() - already mounted."
         else
-            logme stats "$STAGE" "main_normal() - not mounted..., calling bind_me()"
+            logme stats "$STAGE" "$PROC - main_normal() - not mounted..., calling bind_me()"
             bind_me
         fi
     fi
 }
 main() {
-    logme debug "$STAGE" "main() - $PROC - processing"
+    logme debug "$STAGE" "$PROC - main() - processing"
 
     # tag files check
     # 1.  "enable" tag file must be present in internal storage directory.
@@ -240,79 +250,79 @@ main() {
     # mirror    - pacakge_name dir in module dir to internal storage dir.
     # skip      - skip mount of this pacakge_name
     [ -d "$path_dir_storage" ] && [ -f "$path_dir_storage/enable" ] && {
-        logme debug "$STAGE" "main() - processing tags."
+        logme debug "$STAGE" "$PROC - main() - processing tags."
         [ ! -d "$path_dir_apps_module/$PROC" ] && mkdir -p "$path_dir_apps_module/$PROC"
         [ ! -d "$path_dir_apps_storage/$PROC" ] && mkdir -p "$path_dir_apps_storage/$PROC"
         ## tag file mode
         [ -f "$path_file_tag_mirror" ] && {
             # mirror global
             # mirror the app dir to internal directory
-            logme debug "$STAGE" "main() - tag:mirror"
+            logme debug "$STAGE" "$PROC - main() - tag:mirror"
             rm -rf "$path_file_tag_mirror"
             cp -rf "$path_dir_apps_module" "$path_dir_storage"
         }
         [ -f "$path_file_tag_install" ] && {
             # install
             # install the package_dir
-            logme debug "$STAGE" "main() - tag:install"
+            logme debug "$STAGE" "$PROC - main() - tag:install"
             rm -rf "$path_file_tag_install"
             if [ -f "$path_file_apk_storage_base" ] && [ -f "$path_file_apk_storage_orig" ]; then
                 # cp to module
-                logme debug "$STAGE" "main() - tag:install - copying storage to module dir"
+                logme debug "$STAGE" "$PROC - main() - tag:install - copying storage to module dir"
                 cp -rf "$path_file_apk_storage_base" "$path_file_apk_module_base"
                 cp -rf "$path_file_apk_storage_orig" "$path_file_apk_module_orig"
                 set_permissions_recursive "$path_dir_apps_module/$PROC" "root" "root" 0755 0644 u:object_r:magisk_file:s0
                 install_me || return 1
                 return 0
             elif [ -f "$path_file_apk_storage_base" ] && [ ! -f "$path_file_apk_storage_orig" ];then
-                logme debug "$STAGE" "main() - tag:install - trying bind mode only."
+                logme debug "$STAGE" "$PROC - main() - tag:install - trying bind mode only."
                 version_apk_storage_base=""
                 version_installed=""
                 get_apk_version version_apk_storage_base "$path_file_apk_storage_base"
                 get_apk_version version_installed       "$PROC"
                 if [ "$version_apk_storage_base" = "$version_installed" ];then
-                    logme debug "$STAGE" "main() - tag:install - copying storage base to module dir"
+                    logme debug "$STAGE" "$PROC - main() - tag:install - copying storage base to module dir"
                     cp -rf "$path_file_apk_storage_base" "$path_file_apk_module_base"
                     set_permissions_recursive "$path_dir_apps_module/$PROC" "root" "root" 0755 0644 u:object_r:magisk_file:s0
                     bind_me || return 1
                     return 0
                 fi
-                logme debug "$STAGE" "main() - tag:install - version mismatch, installed=$version_installed base=$version_apk_storage_base"
-                logme error "$STAGE" "main() - tag:install - cannot proceed with bind mode due to installed apk does not match with base apk"
+                logme debug "$STAGE" "$PROC - main() - tag:install - version mismatch, installed=$version_installed base=$version_apk_storage_base"
+                logme error "$STAGE" "$PROC - main() - tag:install - cannot proceed with bind mode due to installed apk does not match with base apk"
                 return 1
             else              
-                logme error "$STAGE" "main() - tag:install - failed, missing storage base or original apk."
+                logme error "$STAGE" "$PROC - main() - tag:install - failed, missing storage base or original apk."
                 touch "$path_dir_apps_storage/$PROC/install_failed"
             fi
         }
         [ -f "$path_file_tag_force" ] && {
             # force
             # force mount
-            logme debug "$STAGE" "main() - tag:force_mount"
+            logme debug "$STAGE" "$PROC - main() - tag:force_mount"
             rm -rf "$path_file_tag_force"
             if [ -f "$path_file_apk_module_base" ] && [ -f "$path_file_apk_module_base" ]; then
                 bind_me || return 1
                 return 0
             else
-                logme debug "$STAGE" "main() - tag:force_mount - failed, missing module base or original apk."
+                logme debug "$STAGE" "$PROC - main() - tag:force_mount - failed, missing module base or original apk."
                 touch "$path_dir_apps_storage/$PROC/force_mount_failed"
             fi
         }
         [ -f "$path_file_tag_skip" ] && {
             # skip
             # skip mount
-            logme debug "$STAGE" "main() - tag:skip"
-            logme debug "$STAGE" "main() - tag:skip - exiting.."
+            logme debug "$STAGE" "$PROC - main() - tag:skip"
+            logme debug "$STAGE" "$PROC - main() - tag:skip - exiting.."
             return 0
         }
         [ -f "$path_file_tag_remove" ] && {
             # remove
             # remove the module package dir
-            logme debug "$STAGE" "main() - tag:remove"
+            logme debug "$STAGE" "$PROC - main() - tag:remove"
             rm -rf "$path_file_tag_remove"
             # unmount remnants
              mount | grep "$PROC" | cut -d ' ' -f 3 | while IFS= read -r base_apk || [ -n "$base_apk" ]; do
-                logme debug "$STAGE" "main() - tag:remove - unmounting: $base_apk"
+                logme debug "$STAGE" "$PROC - main() - tag:remove - unmounting: $base_apk"
                 umount -l "$base_apk"
             done
             # remove package
@@ -323,13 +333,4 @@ main() {
     # proceed with normal checks
     main_normal
 }
-
-[ ! -d "$MIRROR/data" ] && {
-    logme error "$STAGE" "failed to detect mirror mount"
-    return 1
-}
 main
-# cleanup
-[ -f "$path_file_tag_mounted" ] && {
-    rm -rf "$path_file_tag_mounted"
-}
