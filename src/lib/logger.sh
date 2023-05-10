@@ -15,26 +15,54 @@
     path_file_logs="$MODDIR/logs/module.log"
 }
 
-# check if config_dubg
+# check if config_debug
 [[ ! -v config_debug ]] && {
     config_debug=true
 }
 
 logme() {
-    # 1 - {06} stats,error,debug
-    # 2 - {18} stage or process (optional)
-    # 3 - {XX} message
+    # $1 - {06} stats,error,debug, etc..
+    # $2 - {XX} message
+    # ------------------------------------
+    # * global parameters. 
+    # * note: must be both declared
+    # ------------------------------------
+    # logger_process={string}
+    # logger_special={string}{18padded_char}
+    # ------------------------------------
+    # * config parameter
+    # ------------------------------------
+    # logger_config_print_terminal={false}
 
-    if [ "$1" != "debug" ] || [ "$config_debug" = true ]; then
-        if [ -n "$3" ];then 
-            # printf "%s %8s %8s %8s  %-6s : %-18s --> $2\n" "$(date)" "$UID" "$PID" "$$" "$1" "$STAGE" >> "$path_file_logs"
-            printf "%s %-6s : %-18s --> $3\n" "$(date)" "$1" "$2" >> "$path_file_logs"
-            printf "%s %-6s : %-18s --> $3\n" "$(date)" "$1" "$2"
-        else 
-            printf "%s %-6s --> $2\n" "$(date)" "$1" >> "$path_file_logs"
-            printf "%s %-6s --> $2\n" "$(date)" "$1"
+    [[ ! -v logger_config_print_terminal ]] && logger_config_print_terminal=false
+
+    [ -n "$1" ] && [ -n "$2" ] && {
+        if [ "$1" != "debug" ] || [ "$config_debug" = true ];then
+            # check if logger global parameters are defined
+            if [[ -v logger_process ]] && [[ -v logger_special ]];then
+                printf "%s %s %-6s : %s --> %s\n" "$(date)" "$logger_process" "$1" "$logger_special" "$2" >> "$path_file_logs"
+                [ "$logger_config_print_terminal" ] && \
+                printf "%s %s %-6s : %s --> %s\n" "$(date)" "$logger_process" "$1" "$logger_special" "$2"
+            else 
+                printf "%s %-6s --> %s\n" "$(date)" "$1" "$2" >> "$path_file_logs"
+                [ "$logger_config_print_terminal" ] && \
+                printf "%s %-6s --> %s\n" "$(date)" "$1" "$2"
+            fi
         fi
-    fi
+    }
+    [ -n "$1" ] && [ -z "$2" ] && {
+        if [ "$1" != "debug" ] || [ "$config_debug" = true ];then
+            if [[ -v logger_process ]] && [[ -v logger_special ]];then
+                printf "%s %s : %s --> %s\n" "$(date)" "$logger_process" "$logger_special" "$1" >> "$path_file_logs"
+                [ "$logger_config_print_terminal" ] && \
+                printf "%s %s : %s --> %s\n" "$(date)" "$logger_process" "$logger_special" "$1"
+            else 
+                printf "%s --> %s\n" "$(date)" "$1" >> "$path_file_logs"
+                [ "$logger_config_print_terminal" ] && \
+                printf "%s --> %s\n" "$(date)" "$1"
+            fi
+        fi
+    }
     return 0
 }
 

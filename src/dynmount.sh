@@ -3,8 +3,8 @@
 # shellcheck source=/dev/null
 
 # magisk_module required
-MODDIR="${0%/*}"
-MODNAME="${MODDIR##*/}"
+export MODDIR="${0%/*}"
+export MODNAME="${MODDIR##*/}"
 
 # config-paths
 # ------------
@@ -14,11 +14,11 @@ PATH="$MODDIR/bin:$PATH:$MAGISKTMP/.magisk/busybox:$PATH"
 
 
 # API_VERSION = 1
-STAGE="$1"  # prepareEnterMntNs or EnterMntNs
-PID="$2"    # PID of app process
-UID="$3"    # UID of app process
-PROC="$4"   # Process name. Example: com.google.android.gms.unstable
-USERID="$5" # USER ID of app
+export STAGE="$1"  # prepareEnterMntNs or EnterMntNs
+export PID="$2"    # PID of app process
+export UID="$3"    # UID of app process
+export PROC="$4"   # Process name. Example: com.google.android.gms.unstable
+export USERID="$5" # USER ID of app
 # API_VERSION = 2
 # Enable ash standalone
 # Enviroment variables: MAGISKTMP, API_VERSION
@@ -71,7 +71,7 @@ prepareEnterMntNs(){
 
 	# app specific
     if [ -d "$path_dir_apps_module/$PROC" ] || [ -d "$path_dir_apps_storage/$PROC" ]; then
-        su 0 -mm -c sh "$MODDIR/manager.sh" "$PROC" "$STAGE"
+        su 0 -mm -c sh "$MODDIR/manager.sh"
         exit_script 1
     fi
 
