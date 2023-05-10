@@ -30,7 +30,7 @@ path_file_apk_module_orig="$path_dir_apps_module/$PROC/original.apk"
 path_file_apk_storage_base="$path_dir_apps_storage/$PROC/base.apk"
 path_file_apk_storage_orig="$path_dir_apps_storage/$PROC/original.apk"
 # tag files config
-path_file_tag_debug="$path_dir_apps_storage/debug"
+path_file_tag_debug="$path_dir_storage/debug"
 path_file_tag_skip="$path_dir_apps_storage/$PROC/skip"
 path_file_tag_force="$path_dir_apps_storage/$PROC/force"
 path_file_tag_mirror="$path_dir_apps_storage/$PROC/mirror"
@@ -357,7 +357,7 @@ main
 # store the current PID
 printf "$PID" > "$path_file_tag_process"
 # special tag debug
-if  [[ -v LOGGER_MODULE ]] && [ -f "$path_file_tag_debug" ]; then
+if [[ -v LOGGER_MODULE ]] && [ -f "$path_file_tag_debug" ]; then
     [ -f "$path_file_logs" ] && {
         cat "$path_file_logs" >> "$path_dir_storage/module.logs"
         printf "" > "$path_file_logs"
