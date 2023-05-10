@@ -1,4 +1,6 @@
 # Dynamic Mount ~ Changelog
+## v1 - (v100101)
+* minor changes in logging to be more readable.
 ## v1 - (v100100)
 * app will now restart after bind or mount.
 ## v1 - (v100006)
