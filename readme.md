@@ -53,20 +53,22 @@ You can manage your apps using tag files. Tag files are just empty files that ar
 ### Internal Storage Folder Structure
 ```
 InternalStorage/
-        |-DynamicMountX/                     {directory} (create this folder if not present)
-               |-enable                      {tag file}
-               |-debug                       {tag file}
-               |-module.log                  {log file}
-               |-apps/                       {directory} (create this folder if not present)
+        |-DynamicMountX/                        {directory} (create this folder if not present)
+               |-enable                         {tag file}
+               |-debug                          {tag file}
+               |-module.log                     {log file}
+               |-apps/                          {directory} (create this folder if not present)
                     |-com.google.android.apps.youtube.music/
-                    |            |-skip      {tag file}
+                    |            |-skip         {tag file}
                     |            |-......
-                    |-com.google.android.youtube
-                                 |-skip      {tag file}
-                                 |-force     {tag file}
-                                 |-mirror    {tag file}
-                                 |-remove    {tag file}
-                                 |-install   {tag file}
+                    |-com.google.android.youtube/
+                                 |-base.apk     {patched apk for mounting}(required for install operation)
+                                 |-original.apk {orignal apk for version retention}(optional)
+                                 |-skip         {tag file}
+                                 |-force        {tag file}(will be removed after task completes)
+                                 |-mirror       {tag file}(will be removed after task completes)
+                                 |-remove       {tag file}(will be replaced after task completes)
+                                 |-install      {tag file}(will be removed after task completes)
 ```
 ### Tag Files - DynamicMountX
 These tag file can be used only in a special folder inside your Internal Storage named ``DynamicMountX``. If not present please create it.
@@ -84,9 +86,9 @@ These tag file can be used only inside the pacakge name folder inside the ``apps
 - ``force``
 <br><sup>Force the app mounting. Ignores version checking and mount checking.</sup>
 - ``mirror``
-<br><sup>Mirror's the package name module directory into this directory.</sup>
+<br><sup>Mirror's the apps module directory into this directory.</sup>
 - ``remove``
-<br><sup>Remove the module package name directory. essentially permanently removing the app.</sup>
+<br><sup>Remove the module apps directory. essentially permanently removing the app from the module.</sup>
 - ``install``
 <br><sup>Re-install's the apk from this directory and replaces the module copy.</sup>
 <br><sup>Note: *if only the base.apk is present, this specific app will only be in mount mode. Meaning the module will not be able maintain the app version if ever this app will be auto upgraded.*</sup>
