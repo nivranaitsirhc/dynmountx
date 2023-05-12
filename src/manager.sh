@@ -30,7 +30,8 @@ path_file_apk_module_orig="$path_dir_apps_module/$PROC/original.apk"
 path_file_apk_storage_base="$path_dir_apps_storage/$PROC/base.apk"
 path_file_apk_storage_orig="$path_dir_apps_storage/$PROC/original.apk"
 # tag files config
-path_file_tag_debug="$path_dir_storage/debug"
+path_file_tag_global_debug="$path_dir_storage/debug"
+path_file_tag_global_mirror="$path_dir_storage/mirror"
 path_file_tag_skip="$path_dir_apps_storage/$PROC/skip"
 path_file_tag_force="$path_dir_apps_storage/$PROC/force"
 path_file_tag_mirror="$path_dir_apps_storage/$PROC/mirror"
@@ -211,19 +212,23 @@ main_normal() {
 
     logme debug "main_normal() - getting versions.."
 
-    if  [ -f "$path_file_tag_version_base" ] && \
-        [ -f "$path_file_tag_version_base" ] && \
-        grep '[^[:space:]]' "$path_file_tag_version_base" && \
-        grep '[^[:space:]]' "$path_file_tag_version_orig"; then
-        logme debug "main_normal() - using version files.."
+    if [ -f "$path_file_tag_version_base" ] && \
+         grep '[^[:space:]]' "$path_file_tag_version_base"; then
+        logme debug "main_normal() - using version_base file.."
         version_apk_module_base=$(cat "$path_file_tag_version_base")
+    else
+        logme debug "main_normal() - creating version_base file.."
+        get_apk_version version_apk_module_base "$path_file_apk_module_base"
+        printf %s "$version_apk_module_base" >  "$path_file_tag_version_base"
+    fi
+    if { [ -f "$path_file_tag_version_orig" ] && \
+        grep '[^[:space:]]' "$path_file_tag_version_orig"; }; then
+        logme debug "main_normal() - using version_orig file.."
         version_apk_module_orig=$(cat "$path_file_tag_version_orig")
     else
-        logme debug "main_normal() - creating version files.."
-        get_apk_version version_apk_module_base "$path_file_apk_module_base"
+        logme debug "main_normal() - creating version_orig file.."
         get_apk_version version_apk_module_orig "$path_file_apk_module_orig"
-        printf %s "$version_apk_module_base" > "$path_file_tag_version_base"
-        printf %s "$version_apk_module_orig" > "$path_file_tag_version_orig"
+        printf %s "$version_apk_module_orig" >  "$path_file_tag_version_orig"
     fi
     
     get_apk_version version_installed "$PROC"
@@ -270,16 +275,9 @@ main() {
     # skip      - skip mount of this pacakge_name
     [ -d "$path_dir_storage" ] && [ -f "$path_dir_storage/enable" ] && {
         logme debug "main() - processing tags."
-        [ ! -d "$path_dir_apps_module/$PROC" ] && mkdir -p "$path_dir_apps_module/$PROC"
+        [ ! -d "$path_dir_apps_module/$PROC" ]  && mkdir -p "$path_dir_apps_module/$PROC"
         [ ! -d "$path_dir_apps_storage/$PROC" ] && mkdir -p "$path_dir_apps_storage/$PROC"
         ## tag file mode
-        [ -f "$path_file_tag_mirror" ] && {
-            # mirror global
-            # mirror the app dir to internal directory
-            logme debug "main() - tag:mirror"
-            rm -rf "$path_file_tag_mirror"
-            cp -rf "$path_dir_apps_module" "$path_dir_storage"
-        }
         [ -f "$path_file_tag_install" ] && {
             # install
             # install the package_dir
@@ -348,6 +346,20 @@ main() {
             rm -rf "${path_dir_apps_module:?}/$PROC" && touch "$path_dir_apps_storage/$PROC/remove_success"
             return 0
         }
+        [ -f "$path_file_tag_mirror" ] && [ ! -f "$path_file_tag_global_mirror" ] && {
+            # mirror app level
+            # mirror the package_name dir to internal directory
+            logme debug "main() - tag:mirror_app_level"
+            rm -rf "$path_file_tag_mirror"
+            cp -rf "${path_dir_apps_module:?}/$PROC" "$path_dir_apps_storage"
+        }
+        [ -f "$path_file_tag_global_mirror" ] && {
+            # mirror global
+            # mirror the apps dir to root internal directory
+            logme debug "main() - tag:mirror_global"
+            rm -rf "$path_file_tag_global_mirror"
+            cp -rf "$path_dir_apps_module" "$path_dir_storage"
+        }
     }
     # proceed with normal checks
     main_normal
@@ -357,7 +369,7 @@ main
 # store the current PID
 printf "$PID" > "$path_file_tag_process"
 # special tag debug
-if [[ -v LOGGER_MODULE ]] && [ -f "$path_file_tag_debug" ]; then
+if [[ -v LOGGER_MODULE ]] && [ -f "$path_file_tag_global_debug" ]; then
     [ -f "$path_file_logs" ] && {
         cat "$path_file_logs" >> "$path_dir_storage/module.logs"
         printf "" > "$path_file_logs"
