@@ -55,6 +55,7 @@ You can manage your apps using tag files. Tag files are just empty files that ar
 InternalStorage/
         |-DynamicMountX/                        {directory} (create this folder if not present)
                |-enable                         {tag file}
+               |-mirror                         {tag file}
                |-debug                          {tag file}
                |-module.log                     {log file}
                |-apps/                          {directory} (create this folder if not present)
@@ -76,7 +77,7 @@ These tag file can be used only in a special folder inside your Internal Storage
 <br><sup>This will enable the recognation of tag files, if not present all tag files will be ignored</sup>
 - ``debug``
 <br><sup>Enables the debug logging, this will also push the module.log inside the module directory into this directory.</sup>
-- ``mirror`` (not yet implemented)
+- ``mirror``
 <br><sup>mirror's all the pacakage name directory handled by the module into this ``apps`` directory.</sup>
 ### Tag Files - App Level
 These tag file can be used only inside the pacakge name folder inside the ``apps`` directory.
