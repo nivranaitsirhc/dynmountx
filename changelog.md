@@ -1,4 +1,8 @@
 # Dynamic Mount ~ Changelog
+## v1 - (v100104)
+* enable global mirror tag
+* refactor tag file heirarchy calls
+* split version file checking for module base.apk and original.apk
 ## v1 - (v100103)
 * added checks to prevent multiple manager.sh calls.
 ## v1 - (v100102)
