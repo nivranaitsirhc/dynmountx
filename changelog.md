@@ -1,4 +1,6 @@
 # Dynamic Mount ~ Changelog
+## v1 - (v100200)
+* add support for other arch.
 ## v1 - (v100104)
 * enable global mirror tag
 * refactor tag file heirarchy calls
