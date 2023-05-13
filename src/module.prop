@@ -1,7 +1,7 @@
 id=dynmountx
 name=Dynamic Mount
-version=v1.1.4_beta
-versionCode=100104
+version=v1.2.0_beta
+versionCode=010200
 author=nivranaitsirhc
 description=Dynamically mount android app at every process start. Requires: Magisk Process Monitor Tool (Dynamic Mount) v2+.
-updateJson=https://raw.githubusercontent.com/nivranaitsirhc/dynmountx/main/update.json
+updateJson=https://raw.githubusercontent.com/nivranaitsirhc/dynmountx/main/update_beta.json
