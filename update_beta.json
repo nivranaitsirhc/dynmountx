@@ -1,6 +1,6 @@
 {
     "version": "v1.2.0",
-    "versionCode": "010200",
+    "versionCode": 010200,
     "zipUrl": "https://github.com/nivranaitsirhc/dynmountx/releases/download/v1.2.0/dynmountx_v1.2.0.zip",
     "changelog": "https://raw.githubusercontent.com/nivranaitsirhc/dynmountx/main/changelog.md" 
 }
