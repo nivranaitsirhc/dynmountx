@@ -25,5 +25,5 @@
 - bbed164 - (nivranaitsirhc) enable bind mode on tag file install
 ## 01.00.05 - v1.0.5 
 - fb7e83d - (nivranaitsirhc) fixed bug: version_tags are not updated resulting in loop mount
-## v10.00.00 - (v1.0.0)
+## v01.00.00 - (v1.0.0)
 - Initial Release
