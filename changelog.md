@@ -1,4 +1,8 @@
 # Dynamic Mount ~ Changelog
+## 01.02.01 - v1.2.1_beta 
+- 6c33016 - (nivranaitsirhc) remove appt2.zip
+- 37ab97a - (nivranaitsirhc) removed binaries from the module zip, internet connection is now required.
+- 9fce2e7 - (nivranaitsirhc) renamed beta_channel.zip to beta-channel.zip
 ## 01.02.00 - v1.2.0 
 - 7288722 - (nivranaitsirhc) updated readme.md to reflect changes of debug tag file
 - 17abd31 - (nivranaitsirhc) updated readme.md to reflect the new beta and release channel
