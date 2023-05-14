@@ -28,6 +28,8 @@
 
 ## How to Install
 1. Download the latest release
+    - ``Beta Channel`` - Active Changes (Prone to bugs).
+    - ``Release Channel`` - Only Major Changes (Most Stable).
 2. Install via Magisk Manager or Third Party Module Manager
 3. create a folder in ``InternalStorage/DynamicMountX/apps``.
 <br><sup>*(e.g. com.google.android.youtube)*</sup>
