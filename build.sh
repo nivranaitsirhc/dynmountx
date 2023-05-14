@@ -66,7 +66,7 @@ else
 fi
 
 target_zip_release_channel=dynmountx_${latest_tag_name}_release.zip
-target_zip_beta_channel=dynmountx_${latest_tag_name}_beta_channel.zip
+target_zip_beta_channel=dynmountx_${latest_tag_name}_beta-channel.zip
 
 printf "\n"
 printf "%s\n" "--------------------------------------------"
