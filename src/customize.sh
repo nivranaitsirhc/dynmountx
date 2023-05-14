@@ -28,17 +28,27 @@ case "$ARCH" in
     abort "Unknown archeticture $ARCH"
     ;;
 esac
-ui_print "* detacted arch - $target_bin_arch."
+ui_print "* arch type - $target_bin_arch."
 
 
 path_bin_dir="$TMPDIR/aapt/aapt/$target_bin_arch"
-[ "$API" -ge "31" ] && path_bin_dir="$TMPDIR/aapt/aapt12/$target_bin_arch"
+wgetURI="https://github.com/nivranaitsirhc/termux-aapt/raw/main/prebuilt-binary/${target_bin_arch}/aapt2"
+[ "$API" -ge "31" ] && wgetURI="https://github.com/nivranaitsirhc/termux-aapt/raw/main/prebuilt-binary-android-12%2B/${target_bin_arch}/aapt2"
 
-# copy aapt to module bin path
-cp -a "$path_bin_dir/." "$MODPATH/bin"
-# remove aapt.zip
-rm -rf "$MODPATH/aapt.zip"
+ui_print "* downloading binary files.."
+wget "$wgetURI" -O "$MODPATH/bin/aapt2"
 
+if [ -f "$MODPATH/bin/aapt2" ];then
+    chmod +x "$MODPATH/bin/aapt2"
+    "$MODPATH/bin/aapt2" version || {
+        ui_print "* binary file is currupted"
+        abort " downloaded binary file is currupted"
+    }
+    ui_print "* successfully downloaded binary file"
+else
+    ui_print "* failed to download binary file."
+    abort "please check your internet connection and try again."
+fi
 
 sdcard_folder="/sdcard/DynamicMountManagerX"
 # setup new sdcard dir

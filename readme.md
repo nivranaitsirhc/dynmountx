@@ -24,7 +24,8 @@
 * [Magisk](https://github.com/topjohnwu/Magisk) v25
 * [Magisk Process Monitor Tool](https://github.com/HuskyDG/zygisk_proc_monitor) v2+ by HuskyDG *(Can be Installed later but required for the the module to function)*
 * [Dynamic Detach Module for Magisk Android](https://github.com/nivranaitsirhc/dyndetachx)
-* ~~ARM64 (for the moment)~~
+* **Internet connection is required when installing the module.**  
+<sup>*(since v1.2.1 binaries are no longer shipped with the module to reduce the file size.)*</sup>
 
 ## How to Install
 1. Download the latest release
