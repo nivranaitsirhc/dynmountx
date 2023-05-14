@@ -1,5 +1,12 @@
 # Dynamic Mount ~ Changelog
 ## 01.02.00 - v1.2.0 
+- 7288722 - (nivranaitsirhc) updated readme.md to reflect changes of debug tag file
+- 17abd31 - (nivranaitsirhc) updated readme.md to reflect the new beta and release channel
+- c0236a6 - (nivranaitsirhc) tweak build.sh
+- 5ca51fa - (nivranaitsirhc) refactor module building.
+- dcd93dc - (nivranaitsirhc) fix bug causing invalid json
+- 69954ec - (nivranaitsirhc) fix update json format
+- 572cca5 - (nivranaitsirhc) updated readme.md to reflect changes in v1.2.0
 - f4ad1c7 - (nivranaitsirhc) enable support for other archetictures
 - 4a69d3a - (nivranaitsirhc) updated readme to reflect v1.1.4_beta changes'
 ## 01.01.04 - v1.1.4_beta 
@@ -25,5 +32,5 @@
 - bbed164 - (nivranaitsirhc) enable bind mode on tag file install
 ## 01.00.05 - v1.0.5 
 - fb7e83d - (nivranaitsirhc) fixed bug: version_tags are not updated resulting in loop mount
-## v01.00.00 - (v1.0.0)
+## 01.00.00 - (v1.0.0)
 - Initial Release

@@ -172,8 +172,9 @@ printf "\n"
 printf "%s\n" "--------------------------------------------"
 printf "Updating Changelog..\n"
 printf "%s\n" "--------------------------------------------"
-printf "%s\n" "# Dynamic Mount ~ Changelog" > "$ROOTDIR/changelog.md"
 
+
+printf "%s\n" "# Dynamic Mount ~ Changelog" > "$ROOTDIR/changelog.md"
 TAG_PREVIOUS=$latest_tag_name
 git tag --sort=-committerdate | while read -r TAG_NOW; do
     [ ! "$TAG_PREVIOUS" = "" ] && {
