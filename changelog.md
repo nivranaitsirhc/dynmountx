@@ -1,9 +1,9 @@
 # Dynamic Mount ~ Changelog
+## 01.02.02 - v1.2.2_beta 
+- 7d69d3f - (nivranaitsirhc) fixed bug about install error due to incomplete removal code pertaining binaries
+- f5ad83c - (nivranaitsirhc) remove aapt2 from build
 ## 01.02.01 - v1.2.1_beta 
-<<<<<<< HEAD
 - 6c33016 - (nivranaitsirhc) remove appt2.zip
-=======
->>>>>>> v1.2.1_beta
 - 37ab97a - (nivranaitsirhc) removed binaries from the module zip, internet connection is now required.
 - 9fce2e7 - (nivranaitsirhc) renamed beta_channel.zip to beta-channel.zip
 ## 01.02.00 - v1.2.0 
