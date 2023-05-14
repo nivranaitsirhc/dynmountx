@@ -151,7 +151,6 @@ printf "%s\n" "--------------------------------------------"
 rm -rf "${ROOTDIR:?}/build/*"
 # copy src files
 cp -rf "${ROOTDIR}/src/." "${ROOTDIR}/build"
-# copy aapt zip
 # cd to build dir
 cd ./build || exit 1
 cp -rf "$ROOTDIR/configs/module_beta.prop" "$ROOTDIR/build/module.prop"
