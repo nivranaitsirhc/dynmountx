@@ -78,7 +78,7 @@ These tag file can be used only in a special folder inside your Internal Storage
 - ``enable``
 <br><sup>This will enable the recognation of tag files, if not present all tag files will be ignored</sup>
 - ``debug``
-<br><sup>Enables the debug logging, this will also push the module.log inside the module directory into this directory.</sup>
+<br><sup>This will copy the module log into DynamicMountX directory. *(Note: Beta Channel Release has additional debugging logs)*</sup>
 - ``mirror``
 <br><sup>mirror's all the pacakage name directory handled by the module into this ``apps`` directory.</sup>
 ### Tag Files - App Level
