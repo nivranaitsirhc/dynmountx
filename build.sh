@@ -185,7 +185,7 @@ git tag --sort=-committerdate | while read -r TAG_NOW; do
     }
     TAG_PREVIOUS=$TAG_NOW
 done
-printf "%s\n" "## v01.00.00 - (v1.0.0)" >> "$ROOTDIR/changelog.md"
+printf "%s\n" "## 01.00.00 - (v1.0.0)" >> "$ROOTDIR/changelog.md"
 printf "%s\n" "- Initial Release" >> "$ROOTDIR/changelog.md"
 
 cat "$ROOTDIR/changelog.md"
