@@ -138,7 +138,8 @@ cat "$ROOTDIR/configs/update.json"
 printf "\n"
 }
 
-[ -d "$ROOTDIR/build" ] && mkdir -p "$ROOTDIR/build"
+[ ! -d "$ROOTDIR/build" ] && mkdir -p "$ROOTDIR/build"
+[ ! -d "$ROOTDIR/release" ] && mkdir -p "$ROOTDIR/release"
 printf "\n"
 printf "%s\n" "--------------------------------------------"
 printf "Building Modules...\n"
@@ -154,15 +155,14 @@ cp -rf "${ROOTDIR}/src/." "${ROOTDIR}/build"
 # cd to build dir
 cd ./build || exit 1
 cp -rf "$ROOTDIR/configs/module_beta.prop" "$ROOTDIR/build/module.prop"
-zip -r -9 "$ROOTDIR/$target_zip_beta_channel" ./
+zip -r -9 "$ROOTDIR/release/$target_zip_beta_channel" ./
 [ $latest_tag_beta = false ] && {
     printf "\n%s\n" "Building Release Channel"
     printf "%s\n" "--------------------------------------------"
     cp -rf "$ROOTDIR/configs/module.prop" "$ROOTDIR/build/module.prop"
     # trim files
-    sed -i '/^\s*# /d;/^\s*$/d;/logme debug/d' "$ROOTDIR/build/dynmount.sh"
-    sed -i '/^\s*# /d;/^\s*$/d;/logme debug/d' "$ROOTDIR/build/manager.sh"
-    zip -r -9 "$ROOTDIR/$target_zip_release_channel" ./
+    find ./build -name "*.sh" -exec sed -i '/^\s*# /d;/^\s*$/d;/logme debug/d' {} \;
+    zip -r -9 "$ROOTDIR/release/$target_zip_release_channel" ./
 }
 cd ../
 
