@@ -9,23 +9,23 @@
 
 ## Features
 - [x] Support any patched apk.
-- [x] Run checks at every managed app process starts.
-- [x] Retainability, ensures that apk will always be mounted.
-- [x] Configure via Tag Files *(no need to access magisk module directory or terminal)*
-- [x] Compatible with any Detach Module.
+- [x] Run checks at every app process starts.
+- [x] Ensures that apk will always be mounted.
+- [x] Configurable via Tag Files *(no need to access magisk module directory or terminal)*
+- [x] Works without any Detach Module, but highly recommended to paired with one. *(since this module will reinstall the orignal apk once a mismatch is detected)*
 
 ## Future-Features
-- [ ] Auto install dependency modules
 - [ ] Auto integration with [Dynamic Detach Module for Magisk Android](https://github.com/nivranaitsirhc/dyndetachx)
-- [ ] Mount in app personal namespace.
 
 
 ## Requirements
-* [Magisk](https://github.com/topjohnwu/Magisk) v25
+* [Magisk](https://github.com/topjohnwu/Magisk) *(min. v24.3)*
 * [Magisk Process Monitor Tool](https://github.com/HuskyDG/zygisk_proc_monitor) v2+ by HuskyDG *(Can be Installed later but required for the the module to function)*
-* [Dynamic Detach Module for Magisk Android](https://github.com/nivranaitsirhc/dyndetachx)
 * **Internet connection is required when installing the module.**  
 <sup>*(since v1.2.1 binaries are no longer shipped with the module to reduce the file size.)*</sup>
+
+## Requirements (optional)
+* [Dynamic Detach Module for Magisk Android](https://github.com/nivranaitsirhc/dyndetachx)
 
 ## How to Install
 1. Download the latest release
@@ -79,7 +79,7 @@ These tag file can be used only in a special folder inside your Internal Storage
 - ``enable``
 <br><sup>This will enable the recognation of tag files, if not present all tag files will be ignored</sup>
 - ``debug``
-<br><sup>This will copy the module log into DynamicMountX directory. *(Note: Beta Channel Release has additional debugging logs)*</sup>
+<br><sup>This will copy the module log into DynamicMountX directory. *(Note: Applicable only to Beta Channel Releases)*</sup>
 - ``mirror``
 <br><sup>mirror's all the pacakage name directory handled by the module into this ``apps`` directory.</sup>
 ### Tag Files - App Level
@@ -94,14 +94,14 @@ These tag file can be used only inside the pacakge name folder inside the ``apps
 - ``remove``
 <br><sup>Remove the module apps directory. essentially permanently removing the app from the module.</sup>
 - ``install``
-<br><sup>Re-install's the apk from this directory and replaces the module copy.</sup>
-<br><sup>Note: *if only the base.apk is present, this specific app will only be in mount mode. Meaning the module will not be able maintain the app version if ever this app will be auto upgraded.*</sup>
+<br><sup>Install/Re-install's the apk from this directory and replaces the module copy.</sup>
+<br><sup>Note: *if only the base.apk is present, this specific app will only be in bind mode. Meaning the module will not be able maintain the app version if ever this app will be auto upgraded by playstore.*</sup>
+
+## Warranty
+This script is provided as-is without warranty.
+Reporting bugs will be highly appreciated.
 
 ## Support
-This script is provided as-is without warranty, but reporting bugs is highly appreciated.
-
-## Donate
-*A ``thank you`` can go beyond a thousand miles. Gestures are also highly appreciated.*
 * [Buy Me a Coffee](https://www.buymeacoffee.com/caccabo "A caffine of excitement")
 * [Paypal](https://paypal.me/caccabo "PayPal")
 
