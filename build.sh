@@ -176,7 +176,7 @@ printf "%s\n" "# Dynamic Mount ~ Changelog" > "$ROOTDIR/changelog.md"
 TAG_NOW=$latest_tag_name
 git tag --sort=-committerdate | while read -r TAG_PREVIOUS; do
     [ ! "$TAG_PREVIOUS" = "" ] && {
-        diff="$(git log ${TAG_PREVIOUS}..${TAG_NOW} --pretty=format:"%h - (%an) %s" --no-merges | grep -v "bump\|repository\|builder\|git" | sed -E 's/^/- /g')"
+        diff="$(git log ${TAG_PREVIOUS}..${TAG_NOW} --pretty=format:"%h - (%an) %s" --no-merges | grep -v "docs\|bump\|repository\|builder\|git" | sed -E 's/^/- /g')"
         [ ! "$diff" = "" ] && {
             printf "%s\n" "## $(echo "$TAG_NOW" | awk -F '[v._]' '{printf "%02i.%02i.%02i",$2,$3,$4;}') - $TAG_NOW " >> "$ROOTDIR/changelog.md"
             printf "%s\n" "$diff" >> "$ROOTDIR/changelog.md"
