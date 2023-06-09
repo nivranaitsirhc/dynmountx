@@ -3,7 +3,7 @@
 # shellcheck source=/dev/null
 
 [ ! "$BOOTMODE" ]                   && abort "Install only via Magisk Manager"
-[ "$MAGISK_VER_CODE" -lt "25000" ]  && abort "Requires Magisk v25 and Above"
+[ "$MAGISK_VER_CODE" -lt "24300" ]  && abort "Requires Magisk v24.3 and Above"
 
 target_bin_arch=arm
 case "$ARCH" in
@@ -13,42 +13,46 @@ case "$ARCH" in
     arm64)
     target_bin_arch=arm64
     ;;
-    x86|x64)
+    x86)
     target_bin_arch=x86-64
     ;;
     i686)
     target_bin_arch=i686
     ;;
     *)
-    abort "* Unknown archeticture $ARCH"
+    abort "* Unsupported archeticture $ARCH"
     ;;
 esac
-ui_print "* arch type is $target_bin_arch."
+ui_print "- detected aarch type is $target_bin_arch."
 
+ui_print "- downloading arm aapt2.."
 wgetURI="https://github.com/nivranaitsirhc/termux-aapt/raw/main/prebuilt-binary/${target_bin_arch}/aapt2"
 [ "$API" -ge "31" ] && \
 wgetURI="https://github.com/nivranaitsirhc/termux-aapt/raw/main/prebuilt-binary-android-12%2B/${target_bin_arch}/aapt2"
-
-ui_print "* downloading $ARCH binaries"
-wget "$wgetURI" -O "$MODPATH/bin/aapt2" || abort " failed to download $ARCH binaries"
+wget "$wgetURI" -O "$MODPATH/bin/aapt2" || abort "* unable to connect"
 
 if [ -f "$MODPATH/bin/aapt2" ];then
     chmod +x "$MODPATH/bin/aapt2"
     "$MODPATH/bin/aapt2" version || {
-        abort "* downloaded binary file is currupted"
+        abort "* downloaded binary file is currupted."
     }
 else
-    ui_print "* failed to download binary file."
+    ui_print "- failed to download binary file."
     abort "* please check your internet connection and try again."
 fi
 
 sdcard_folder="/sdcard/DynamicMountManagerX"
 # setup new sdcard dir
 [ ! -d "$sdcard_folder" ] && {
-    ui_print "* setting up sdcard folder"
+    ui_print "- setting up internal storage directory.."
     mkdir -p "$sdcard_folder/apps"
     touch "$sdcard_folder/enable"
-    touch "$sdcard_folder/debug"
+    # touch "$sdcard_folder/debug"
+    # create an example app
+    ui_print "- creating sample app."
+    mkdir -p "$sdcard_folder/apps/com.google.android.youtube"
+    touch "$sdcard_folder/apps/com.google.android.youtube/install"
+    printf "place here your original.apk and base.apk" > "$sdcard_folder/apps/com.google.android.youtube/readme.txt"
 }
 
 # set permissions
@@ -60,7 +64,7 @@ set_perm_recursive "$MODPATH/lib"   root root 0755 0644 u:object_r:magisk_file:s
 [ ! -d "$MAGISKTMP/.magisk/modules/magisk_proc_monitor" ] && {
     MPMURL=http://github.com/HuskyDG/magisk_proc_monitor
     ui_print "* process monitor tool is not installed"
-    ui_print "* please install it from $MPMURL"
+    ui_print "* opening link to $MPMURL"
     sleep 3
     am start -a android.intent.action.VIEW -d "$MPMURL" &>/dev/null
 }
