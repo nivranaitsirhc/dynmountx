@@ -1,4 +1,7 @@
 # Dynamic Mount ~ Changelog
+## 01.02.03 - v1.2.3_beta 
+- 6c9c457 - (nivranaitsirhc) [core] refactor customize.sh, match the required min magisk version to proc_monitor module
+- 89fb936 - (nivranaitsirhc) [fix] fixed bug about install error due to incomplete removal code pertaining binaries
 ## 01.02.02 - v1.2.2_beta 
 - 7d69d3f - (nivranaitsirhc) fixed bug about install error due to incomplete removal code pertaining binaries
 - f5ad83c - (nivranaitsirhc) remove aapt2 from build
@@ -18,7 +21,6 @@
 - 4a69d3a - (nivranaitsirhc) updated readme to reflect v1.1.4_beta changes'
 ## 01.01.04 - v1.1.4_beta 
 - 76eef41 - (nivranaitsirhc) enable global mirror tag rafactor tag file heirarchy split version file checking for module base and original apk
-## 01.01.03 - v1.1.3 
 - 149be52 - (nivranaitsirhc) updated readme again
 - 5ddd938 - (nivranaitsirhc) updated reame.
 - c6a5da8 - (nivranaitsirhc) fixed typo path for debug tag file.
