@@ -29,6 +29,7 @@ ui_print "- downloading arm aapt2.."
 wgetURI="https://github.com/nivranaitsirhc/termux-aapt/raw/main/prebuilt-binary/${target_bin_arch}/aapt2"
 [ "$API" -ge "31" ] && \
 wgetURI="https://github.com/nivranaitsirhc/termux-aapt/raw/main/prebuilt-binary-android-12%2B/${target_bin_arch}/aapt2"
+[ ! -d "$MODPATH/bin" ] && mkdir -p "$MODPATH/bin" 
 wget "$wgetURI" -O "$MODPATH/bin/aapt2" || abort "* unable to connect"
 
 if [ -f "$MODPATH/bin/aapt2" ];then
