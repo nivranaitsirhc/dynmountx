@@ -1,0 +1,10 @@
+# functionality related
+[feature]       - feature changes
+[regression]    - regression changes
+[fix]           - fixes related to bugs
+[core]          - core script changes
+# non functionality related
+[repository]    - repository related changes
+[builder]       - builder related changes
+[bump]          - git tag
+[git]           - git related changes

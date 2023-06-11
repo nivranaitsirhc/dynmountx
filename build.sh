@@ -83,10 +83,12 @@ logme debug main "beta=$latest_tag_beta"
 
 
 # module_beta.prop
-updateJsonUrl_beta="https:\/\/raw.githubusercontent.com\/nivranaitsirhc\/dynmountx\/main\/configs\/update_beta.json"
+updateJsonUrl_beta="https:\/\/raw.githubusercontent.com\/nivranaitsirhc\/dynmountx\/bleeding\/configs\/update_beta.json"
+updateJsonChangelog="https:\/\/raw.githubusercontent.com\/nivranaitsirhc\/dynmountx\/bleeding\/changelog.md"
 set_prop version        "$latest_tag_name"              "$ROOTDIR/configs/module_beta.prop"
 set_prop versionCode    "$latest_tag_code_num"          "$ROOTDIR/configs/module_beta.prop"
 set_prop updateJson     "$updateJsonUrl_beta"           "$ROOTDIR/configs/module_beta.prop"
+set_prop changelog      "$updateJsonChangelog"          "$ROOTDIR/configs/module_beta.prop"
 
 # module.prop
 [ $latest_tag_beta = false ] && {
@@ -94,6 +96,7 @@ updateJsonUrl="https:\/\/raw.githubusercontent.com\/nivranaitsirhc\/dynmountx\/m
 set_prop version        "$latest_tag_name"              "$ROOTDIR/configs/module.prop"
 set_prop versionCode    "$latest_tag_code_num"          "$ROOTDIR/configs/module.prop"
 set_prop updateJson     "$updateJsonUrl"                "$ROOTDIR/configs/module.prop"
+set_prop changelog      "$updateJsonChangelog"          "$ROOTDIR/configs/module.prop"
 }
 
 
@@ -176,9 +179,11 @@ printf "%s\n" "# Dynamic Mount ~ Changelog" > "$ROOTDIR/changelog.md"
 TAG_NOW=$latest_tag_name
 git tag --sort=-committerdate | while read -r TAG_PREVIOUS; do
     [ ! "$TAG_PREVIOUS" = "" ] && {
-        diff="$(git log ${TAG_PREVIOUS}..${TAG_NOW} --pretty=format:"%h - (%an) %s" --no-merges | grep -v "bump\|repository\|builder\|git" | sed -E 's/^/- /g')"
+        # diff="$(git log ${TAG_PREVIOUS}..${TAG_NOW} --pretty=format:"%h (%an) %s" --no-merges | grep -v "docs\|bump\|repository\|builder\|git" | sed -E 's/^/- /g')"
+        diff="$(git log ${TAG_PREVIOUS}..${TAG_NOW} --pretty=format:"%h %s" --no-merges | grep -v "docs\|bump\|repository\|builder\|git" | sed -E 's/^/- /g')"
         [ ! "$diff" = "" ] && {
-            printf "%s\n" "## $(echo "$TAG_NOW" | awk -F '[v._]' '{printf "%02i.%02i.%02i",$2,$3,$4;}') - $TAG_NOW " >> "$ROOTDIR/changelog.md"
+            # printf "%s\n" "## $(echo "$TAG_NOW" | awk -F '[v._]' '{printf "%02i.%02i.%02i",$2,$3,$4;}') - $TAG_NOW " >> "$ROOTDIR/changelog.md"
+            printf "%s\n" "## $TAG_NOW " >> "$ROOTDIR/changelog.md"
             printf "%s\n" "$diff" >> "$ROOTDIR/changelog.md"
         }
     }
@@ -188,3 +193,9 @@ printf "%s\n" "## 01.00.00 - (v1.0.0)" >> "$ROOTDIR/changelog.md"
 printf "%s\n" "- Initial Release" >> "$ROOTDIR/changelog.md"
 
 cat "$ROOTDIR/changelog.md"
+
+[ "$1" == "release" ] && {
+    git add changelog.md configs && \
+    git commit -m "[release] build.sh invoked relase for $latest_tag_name @ $(date)"
+    echo "added commit"
+}
