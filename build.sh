@@ -84,9 +84,11 @@ logme debug main "beta=$latest_tag_beta"
 
 # module_beta.prop
 updateJsonUrl_beta="https:\/\/raw.githubusercontent.com\/nivranaitsirhc\/dynmountx\/bleeding\/configs\/update_beta.json"
+updateJsonChangelog="https:\/\/raw.githubusercontent.com\/nivranaitsirhc\/dynmountx\/bleeding\/changelog.md"
 set_prop version        "$latest_tag_name"              "$ROOTDIR/configs/module_beta.prop"
 set_prop versionCode    "$latest_tag_code_num"          "$ROOTDIR/configs/module_beta.prop"
 set_prop updateJson     "$updateJsonUrl_beta"           "$ROOTDIR/configs/module_beta.prop"
+set_prop changelog      "$updateJsonChangelog"          "$ROOTDIR/configs/module_beta.prop"
 
 # module.prop
 [ $latest_tag_beta = false ] && {
@@ -94,6 +96,7 @@ updateJsonUrl="https:\/\/raw.githubusercontent.com\/nivranaitsirhc\/dynmountx\/m
 set_prop version        "$latest_tag_name"              "$ROOTDIR/configs/module.prop"
 set_prop versionCode    "$latest_tag_code_num"          "$ROOTDIR/configs/module.prop"
 set_prop updateJson     "$updateJsonUrl"                "$ROOTDIR/configs/module.prop"
+set_prop changelog      "$updateJsonChangelog"          "$ROOTDIR/configs/module_beta.prop"
 }
 
 
