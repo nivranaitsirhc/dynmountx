@@ -83,7 +83,7 @@ logme debug main "beta=$latest_tag_beta"
 
 
 # module_beta.prop
-updateJsonUrl_beta="https:\/\/raw.githubusercontent.com\/nivranaitsirhc\/dynmountx\/main\/configs\/update_beta.json"
+updateJsonUrl_beta="https:\/\/raw.githubusercontent.com\/nivranaitsirhc\/dynmountx\/bleeding\/configs\/update_beta.json"
 set_prop version        "$latest_tag_name"              "$ROOTDIR/configs/module_beta.prop"
 set_prop versionCode    "$latest_tag_code_num"          "$ROOTDIR/configs/module_beta.prop"
 set_prop updateJson     "$updateJsonUrl_beta"           "$ROOTDIR/configs/module_beta.prop"
@@ -188,3 +188,8 @@ printf "%s\n" "## 01.00.00 - (v1.0.0)" >> "$ROOTDIR/changelog.md"
 printf "%s\n" "- Initial Release" >> "$ROOTDIR/changelog.md"
 
 cat "$ROOTDIR/changelog.md"
+
+[ "$1" == "release" ] && {
+    echo add changelog.md configs && \
+    echo commit -m "[release] build.sh invoked relase for $latest_tag_name @ $(date)"
+}
