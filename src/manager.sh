@@ -20,7 +20,6 @@ path_dir_storage="/sdcard/DynamicMountManagerX"
 path_dir_apps_module="$MIRROR/data/adb/apps"
 path_dir_apps_storage="$path_dir_storage/apps"
 # tag files
-path_file_tag_mounted="$path_dir_apps_module/$PROC/mounted"
 path_file_tag_version_base="$path_dir_apps_module/$PROC/version_base"
 path_file_tag_version_orig="$path_dir_apps_module/$PROC/version_orig"
 path_file_tag_process="$path_dir_apps_module/$PROC/process"
@@ -59,7 +58,6 @@ logger_check(){
         }
     fi
 }
-
 # sanity checks
 [ ! -d "$MIRROR/data" ] && {
     logme error "we failed to detect magisk mirror mount. skipping.."
