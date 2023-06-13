@@ -10,6 +10,8 @@
     - fix typo in build.sh beta update link still point to main (nivranaitsirhc)  
 - 5645a5c [builder]       
     - forgot to change echo to git (nivranaitsirhc)  
+- 9b31c52 [builder]       
+    - include changelog_dev.md to release commit (nivranaitsirhc)  
 - 422d460 [builder]       
     - redirect update.json to bleeding branch. only stable will point to main. add relase param to build sh to auto commit changelog (nivranaitsirhc)  
 - b4dd332 [builder]       
