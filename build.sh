@@ -93,7 +93,7 @@ set_prop changelog      "$updateJsonChangelog_beta"     "$ROOTDIR/configs/module
 # module.prop
 [ $latest_tag_beta = false ] && {
 updateJsonUrl="https:\/\/raw.githubusercontent.com\/nivranaitsirhc\/dynmountx\/main\/configs\/update.json"
-updateJsonChangelog_beta="https:\/\/raw.githubusercontent.com\/nivranaitsirhc\/dynmountx\/main\/changelog.md"
+updateJsonChangelog="https:\/\/raw.githubusercontent.com\/nivranaitsirhc\/dynmountx\/main\/changelog.md"
 set_prop version        "$latest_tag_name"              "$ROOTDIR/configs/module.prop"
 set_prop versionCode    "$latest_tag_code_num"          "$ROOTDIR/configs/module.prop"
 set_prop updateJson     "$updateJsonUrl"                "$ROOTDIR/configs/module.prop"
