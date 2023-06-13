@@ -60,18 +60,18 @@ logger_check(){
 }
 # sanity checks
 [ ! -d "$MIRROR/data" ] && {
-    logme error "we failed to detect magisk mirror mount. skipping.."
+    logme error "we failed to detect magisk mirror mount. skipping this process.."
     logger_check
     return 1
 }
 [[ ! -v PROC ]] && {
-    logme error "we are expecting PROC but it is not defined. skipping.."
+    logme error "we are expecting PROC but it is not defined. skipping this process.."
     logger_check
     return 1
 }
 # cleanup
 [ -f "$path_file_tag_mounted" ] && {
-    logme stats "detected restart tag file. skipping.."
+    logme stats "detected restart tag file. skipping this process.."
     rm -rf "$path_file_tag_mounted"
     logger_check
     return 0
@@ -81,7 +81,7 @@ logger_check(){
     # check if process is still running
     _PID="$(cat "$path_file_tag_process")"
     pidof "$_PID" && {
-        logme stats "$_PID is still running. exiting this execution."
+        logme stats "$_PID is still running. skipping this process.."
         logger_check
         return 0
     }
@@ -138,7 +138,7 @@ bind_me() {
     logme debug "bind_me() - $path_file_apk_module_base"
     logme debug "bind_me() - stopping app.."
     am force-stop "$PROC"
-    logme debug "bind_me() - disabling app.."
+    # logme debug "bind_me() - disabling app.."
     # pm disable "$PROC"
 
     logme debug "bind_me() - unmounting remants.."
@@ -175,7 +175,7 @@ install_me() {
     logme debug "install_me() - $path_file_apk_module_base"
     logme debug "install_me() - stopping app.."
     am force-stop "$PROC"
-    logme debug "install_me() - disabling app.."
+    # logme debug "install_me() - disabling app.."
     # pm disable "$PROC"
 
     logme debug "install_me() - unmounting remants.."
