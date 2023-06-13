@@ -84,15 +84,16 @@ logme debug main "beta=$latest_tag_beta"
 
 # module_beta.prop
 updateJsonUrl_beta="https:\/\/raw.githubusercontent.com\/nivranaitsirhc\/dynmountx\/bleeding\/configs\/update_beta.json"
-updateJsonChangelog="https:\/\/raw.githubusercontent.com\/nivranaitsirhc\/dynmountx\/bleeding\/changelog.md"
+updateJsonChangelog_beta="https:\/\/raw.githubusercontent.com\/nivranaitsirhc\/dynmountx\/bleeding\/changelog.md"
 set_prop version        "$latest_tag_name"              "$ROOTDIR/configs/module_beta.prop"
 set_prop versionCode    "$latest_tag_code_num"          "$ROOTDIR/configs/module_beta.prop"
 set_prop updateJson     "$updateJsonUrl_beta"           "$ROOTDIR/configs/module_beta.prop"
-set_prop changelog      "$updateJsonChangelog"          "$ROOTDIR/configs/module_beta.prop"
+set_prop changelog      "$updateJsonChangelog_beta"     "$ROOTDIR/configs/module_beta.prop"
 
 # module.prop
 [ $latest_tag_beta = false ] && {
 updateJsonUrl="https:\/\/raw.githubusercontent.com\/nivranaitsirhc\/dynmountx\/main\/configs\/update.json"
+updateJsonChangelog_beta="https:\/\/raw.githubusercontent.com\/nivranaitsirhc\/dynmountx\/main\/changelog.md"
 set_prop version        "$latest_tag_name"              "$ROOTDIR/configs/module.prop"
 set_prop versionCode    "$latest_tag_code_num"          "$ROOTDIR/configs/module.prop"
 set_prop updateJson     "$updateJsonUrl"                "$ROOTDIR/configs/module.prop"
@@ -171,28 +172,56 @@ cd ../
 
 printf "\n"
 printf "%s\n" "--------------------------------------------"
-printf "Updating Changelog..\n"
+printf "Updating User Changelog..\n"
 printf "%s\n" "--------------------------------------------"
 
+target_usr_changelog="changelog.md"
 
-printf "%s\n" "# Dynamic Mount ~ Changelog" > "$ROOTDIR/changelog.md"
+printf "%s\n" "# Dynamic Mount ~ Changelog" > "$ROOTDIR/$target_usr_changelog"
 TAG_NOW=$latest_tag_name
 git tag --sort=-committerdate | while read -r TAG_PREVIOUS; do
     [ ! "$TAG_PREVIOUS" = "" ] && {
         # diff="$(git log ${TAG_PREVIOUS}..${TAG_NOW} --pretty=format:"%h (%an) %s" --no-merges | grep -v "docs\|bump\|repository\|builder\|git" | sed -E 's/^/- /g')"
-        diff="$(git log ${TAG_PREVIOUS}..${TAG_NOW} --pretty=format:"%h %s" --no-merges | grep -v "docs\|bump\|repository\|builder\|git" | sed -E 's/^/- /g')"
+        diff="$(git log ${TAG_PREVIOUS}..${TAG_NOW} --pretty=format:"%h %s" --no-merges | grep -E '\[(feature|fix|core|regression)\]' | sort --key=1.10 | while read -ra LINE; do printf "%s %-15s %s\n" "- ${LINE[*]:0:1}" "${LINE[*]:1:1}" "${LINE[*]:2}"; done)"
         [ ! "$diff" = "" ] && {
             # printf "%s\n" "## $(echo "$TAG_NOW" | awk -F '[v._]' '{printf "%02i.%02i.%02i",$2,$3,$4;}') - $TAG_NOW " >> "$ROOTDIR/changelog.md"
-            printf "%s\n" "## $TAG_NOW " >> "$ROOTDIR/changelog.md"
-            printf "%s\n" "$diff" >> "$ROOTDIR/changelog.md"
+            printf "%s\n" "## $TAG_NOW " >> "$ROOTDIR/$target_usr_changelog"
+            printf "%s\n" "$diff  " >> "$ROOTDIR/$target_usr_changelog"
         }
     }
     TAG_NOW=$TAG_PREVIOUS
 done
-printf "%s\n" "## 01.00.00 - (v1.0.0)" >> "$ROOTDIR/changelog.md"
-printf "%s\n" "- Initial Release" >> "$ROOTDIR/changelog.md"
+printf "%s\n" "## v1.0.0" >> "$ROOTDIR/$target_usr_changelog"
+printf "%s\n" "- Initial Release" >> "$ROOTDIR/$target_usr_changelog"
 
-cat "$ROOTDIR/changelog.md"
+cat "$ROOTDIR/$target_usr_changelog"
+
+printf "\n"
+printf "%s\n" "--------------------------------------------"
+printf "Updating Dev Changelog..\n"
+printf "%s\n" "--------------------------------------------"
+
+target_dev_changelog=changelog_dev.md
+
+printf "%s\n" "# Dynamic Mount ~ Changelog" > "$ROOTDIR/$target_dev_changelog"
+TAG_NOW=$latest_tag_name
+git tag --sort=-committerdate | while read -r TAG_PREVIOUS; do
+    [ ! "$TAG_PREVIOUS" = "" ] && {
+        # diff="$(git log ${TAG_PREVIOUS}..${TAG_NOW} --pretty=format:"%h (%an) %s" --no-merges | grep -v "docs\|bump\|repository\|builder\|git" | sed -E 's/^/- /g')"
+        diff="$(git log ${TAG_PREVIOUS}..${TAG_NOW} --pretty=format:"%h %s (%an)" --no-merges | grep -E -v '\[(bump|git|release)\]' | sort --key=1.10 | while read -ra LINE; do printf "%s %-15s \n    - %s  \n" "- ${LINE[*]:0:1}" "${LINE[*]:1:1}" "${LINE[*]:2}"; done)"
+        [ ! "$diff" = "" ] && {
+            # printf "%s\n" "## $(echo "$TAG_NOW" | awk -F '[v._]' '{printf "%02i.%02i.%02i",$2,$3,$4;}') - $TAG_NOW " >> "$ROOTDIR/changelog.md"
+            printf "%s\n" "## $TAG_NOW " >> "$ROOTDIR/$target_dev_changelog"
+            printf "%s\n" "$diff  " >> "$ROOTDIR/$target_dev_changelog"
+        }
+    }
+    TAG_NOW=$TAG_PREVIOUS
+done
+printf "%s\n" "## v1.0.0" >> "$ROOTDIR/$target_dev_changelog"
+printf "%s\n" "- Initial Release" >> "$ROOTDIR/$target_dev_changelog"
+
+cat "$ROOTDIR/$target_dev_changelog"
+
 
 [ "$1" == "release" ] && {
     git add changelog.md configs && \
