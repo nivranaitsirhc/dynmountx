@@ -50,20 +50,32 @@ logme(){ :; }
 # logger configs
 logger_process=$(printf "%-6s %-6s" "$UID" "$PID")
 logger_special=$(printf "%-18s - %s" "$(basename "$0"):$STAGE" "$PROC")
+# logger
+logger_check(){
+    if [[ -v LOGGER_MODULE ]] && [ -f "$path_file_tag_global_debug" ]; then
+        [ -f "$path_file_logs" ] && {
+            cat "$path_file_logs" >> "$path_dir_storage/module.log"
+            printf "" > "$path_file_logs"
+        }
+    fi
+}
 
 # sanity checks
 [ ! -d "$MIRROR/data" ] && {
     logme error "we failed to detect magisk mirror mount. skipping.."
+    logger_check
     return 1
 }
 [[ ! -v PROC ]] && {
     logme error "we are expecting PROC but it is not defined. skipping.."
+    logger_check
     return 1
 }
 # cleanup
 [ -f "$path_file_tag_mounted" ] && {
     logme stats "detected restart tag file. skipping.."
     rm -rf "$path_file_tag_mounted"
+    logger_check
     return 0
 }
 # prevent multiple process
@@ -72,6 +84,7 @@ logger_special=$(printf "%-18s - %s" "$(basename "$0"):$STAGE" "$PROC")
     _PID="$(cat "$path_file_tag_process")"
     pidof "$_PID" && {
         logme stats "$_PID is still running. exiting this execution."
+        logger_check
         return 0
     }
     # remove path process
@@ -378,9 +391,4 @@ main
 # store the current PID
 printf "$PID" > "$path_file_tag_process"
 # special tag debug
-if [[ -v LOGGER_MODULE ]] && [ -f "$path_file_tag_global_debug" ]; then
-    [ -f "$path_file_logs" ] && {
-        cat "$path_file_logs" >> "$path_dir_storage/module.logs"
-        printf "" > "$path_file_logs"
-    }
-fi
+logger_check
