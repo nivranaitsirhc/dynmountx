@@ -128,7 +128,7 @@ bind_me() {
     logme debug "bind_me() - stopping app.."
     am force-stop "$PROC"
     logme debug "bind_me() - disabling app.."
-    pm disable "$PROC"
+    # pm disable "$PROC"
 
     logme debug "bind_me() - unmounting remants.."
     mount | grep "$PROC" | cut -d ' ' -f 3 | while IFS= read -r base_apk || [ -n "$base_apk" ]; do
@@ -148,6 +148,11 @@ bind_me() {
         logme error "bind_me() - Failed to Mount.."
     fi
 
+    [ -d "/data/data/$PROC/cache/" ] && {
+        logme debug "bind_me() - clearing cache"
+        rm -rf "/data/data/$PROC/cache/"
+    }
+
     logme debug "bind_me() - Enabling App.."
     pm enable "$PROC"
 
@@ -156,12 +161,11 @@ bind_me() {
 # install apk and mount bind app
 install_me() {
     # install apk
-
     logme debug "install_me() - $path_file_apk_module_base"
     logme debug "install_me() - stopping app.."
     am force-stop "$PROC"
     logme debug "install_me() - disabling app.."
-    pm disable "$PROC"
+    # pm disable "$PROC"
 
     logme debug "install_me() - unmounting remants.."
     mount | grep "$PROC" | cut -d ' ' -f 3 | while IFS= read -r base_apk || [ -n "$base_apk" ]; do
@@ -190,6 +194,11 @@ install_me() {
     else
         logme error "install_me() - Failed to Mount."
     fi
+
+    [ -d "/data/data/$PROC/cache/" ] && {
+        logme debug "install_me() - clearing cache.."
+        rm -rf "/data/data/$PROC/cache/"
+    }
 
     logme debug "install_me() - Enabling App.."
     pm enable "$PROC"
