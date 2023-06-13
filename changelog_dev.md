@@ -1,4 +1,39 @@
 # Dynamic Mount ~ Changelog
+## v1.2.4_beta 
+- c1731ae [builder]       
+    - apply the same changelog stye to main (nivranaitsirhc)  
+- 82bf171 [builder]       
+    - bump to v1.2.3_beta with fixes (nivranaitsirhc)  
+- 89644e3 [builder]       
+    - fix typo during copy paste of module_beta.prop (nivranaitsirhc)  
+- bad8713 [builder]       
+    - fix typo in build.sh beta update link still point to main (nivranaitsirhc)  
+- 5645a5c [builder]       
+    - forgot to change echo to git (nivranaitsirhc)  
+- 422d460 [builder]       
+    - redirect update.json to bleeding branch. only stable will point to main. add relase param to build sh to auto commit changelog (nivranaitsirhc)  
+- b4dd332 [builder]       
+    - target changelog link to bleeding branch (nivranaitsirhc)  
+- 1bed53b [builder]       
+    - update build.sh to new changelog format, now changelog and update stable will only point to main branch and beta will point to bleeding (nivranaitsirhc)  
+- 67fd38c [builder]       
+    - update changelog style and format (nivranaitsirhc)  
+- fbebd59 [configs]       
+    - fix module.prop typo (nivranaitsirhc)  
+- 8274899 [core]          
+    - refactor debug messages and bind_me/install_me functions (nivranaitsirhc)  
+- 55a8f96 [core]          
+    - remove duplicate declaration path_file_tag_mounted (nivranaitsirhc)  
+- 99e93bc [docs]          
+    - update readme.md (nivranaitsirhc)  
+- e9e2c65 [docs]          
+    - update readme.md (nivranaitsirhc)  
+- 8aa1d73 [feature]       
+    - add cache clearing stage when mounting or installing apk (nivranaitsirhc)  
+- c9e5dbc [fix]           
+    - fix issue of logger prematurely exiting under certain conditions (nivranaitsirhc)  
+- 1363608 [repository]    
+    - add new meta to module.prop (nivranaitsirhc)    
 ## v1.2.3_beta 
 - 075b080 [builder]       
     - add docs change logs exemptions (nivranaitsirhc)  

@@ -224,7 +224,7 @@ cat "$ROOTDIR/$target_dev_changelog"
 
 
 [ "$1" == "release" ] && {
-    git add changelog.md configs && \
+    git add changelog.md changelog_dev.md configs && \
     git commit -m "[release] build.sh invoked relase for $latest_tag_name @ $(date)"
     echo "added commit"
 }
