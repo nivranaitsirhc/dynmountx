@@ -208,7 +208,7 @@ TAG_NOW=$latest_tag_name
 git tag --sort=-committerdate | while read -r TAG_PREVIOUS; do
     [ ! "$TAG_PREVIOUS" = "" ] && {
         # diff="$(git log ${TAG_PREVIOUS}..${TAG_NOW} --pretty=format:"%h (%an) %s" --no-merges | grep -v "docs\|bump\|repository\|builder\|git" | sed -E 's/^/- /g')"
-        diff="$(git log ${TAG_PREVIOUS}..${TAG_NOW} --pretty=format:"%h %s (%an)" --no-merges | grep -E -v '\[(bump|git|release)\]' | sort --key=1.10 | while read -ra LINE; do printf "%s %-15s \n    - %s  \n" "- ${LINE[*]:0:1}" "${LINE[*]:1:1}" "${LINE[*]:2}"; done)"
+        diff="$(git log ${TAG_PREVIOUS}..${TAG_NOW} --pretty=format:"%h %s (%an)" --no-merges | grep -E -v '\[(bump|git|release)\]' | while read -ra LINE; do printf "%s %-15s \n    - %s  \n" "- ${LINE[*]:0:1}" "${LINE[*]:1:1}" "${LINE[*]:2}"; done)"
         [ ! "$diff" = "" ] && {
             # printf "%s\n" "## $(echo "$TAG_NOW" | awk -F '[v._]' '{printf "%02i.%02i.%02i",$2,$3,$4;}') - $TAG_NOW " >> "$ROOTDIR/changelog.md"
             printf "%s\n" "## $TAG_NOW " >> "$ROOTDIR/$target_dev_changelog"
