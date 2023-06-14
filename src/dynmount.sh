@@ -5,12 +5,13 @@
 # magisk_module required
 export MODDIR="${0%/*}"
 export MODNAME="${MODDIR##*/}"
-
+MAGISKTMP=$(magisk --path) || MAGISKTMP=/sbin
+export MAGISKTMP
 # config-paths
 # ------------
 
 # magisk Busybox & module local binaries
-PATH="$MODDIR/bin:$PATH:$MAGISKTMP/.magisk/busybox:$PATH"
+PATH="$MODDIR/bin:$MAGISKTMP/.magisk/busybox:$PATH"
 
 
 # API_VERSION = 1

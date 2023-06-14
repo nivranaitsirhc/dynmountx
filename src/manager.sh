@@ -11,7 +11,7 @@ MAGISKTMP=$(magisk --path) || MAGISKTMP=/sbin
 MIRROR="$MAGISKTMP/.magisk/mirror"
 
 # magisk Busybox & module local binaries
-PATH="$MODDIR/bin:$PATH:$MAGISKTMP/.magisk/busybox:$PATH"
+PATH="$MODDIR/bin:$MAGISKTMP/.magisk/busybox:$PATH"
 
 # config-static_variables 
 # -----------------------
