@@ -1,4 +1,15 @@
 # Dynamic Mount ~ Changelog
+## v1.2.5 
+- 3b12e85 [core]          
+    - convert manager.sh as an executable (nivranaitsirhc)  
+- 627e4a3 [core]          
+    - refactor customize.sh (nivranaitsirhc)  
+- a62a96d [fix]           
+    - properly define MAGISKTMP and fix toxic PATH (nivranaitsirhc)  
+- d3db936 [builder]       
+    - remove sort from generating changelog_dev to preserve a sense of chronological history (nivranaitsirhc)  
+- 23f4f19 [configs]       
+    - fix typo update_beta.json pointing to changelog.md (nivranaitsirhc)    
 ## v1.2.4_beta 
 - 9b31c52 [builder]       
     - include changelog_dev.md to release commit (nivranaitsirhc)  

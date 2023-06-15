@@ -1,4 +1,11 @@
 # Dynamic Mount ~ Changelog
+## v1.2.5 
+- 3b12e85 [core]          
+    - convert manager.sh as an executable (nivranaitsirhc)  
+- 627e4a3 [core]          
+    - refactor customize.sh (nivranaitsirhc)  
+- a62a96d [fix]           
+    - properly define MAGISKTMP and fix toxic PATH (nivranaitsirhc)    
 ## v1.2.4_beta 
 - 8274899 [core]          
     - refactor debug messages and bind_me/install_me functions (nivranaitsirhc)  
