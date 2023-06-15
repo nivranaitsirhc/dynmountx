@@ -72,7 +72,7 @@ prepareEnterMntNs(){
 
 	# app specific
     if [ -d "$path_dir_apps_module/$PROC" ] || [ -d "$path_dir_apps_storage/$PROC" ]; then
-        su 0 -mm -c sh "$MODDIR/manager.sh"
+        su 0 -mm -c "$MODDIR/manager.sh"
         exit_script 1
     fi
 
