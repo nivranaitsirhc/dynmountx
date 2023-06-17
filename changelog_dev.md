@@ -1,4 +1,7 @@
 # Dynamic Mount ~ Changelog
+## v1.3.0.rc.2 
+- 8fc2eab [builder]       
+    - fix ./build error (nivranaitsirhc)    
 ## v1.3.0.rc.1 
 - 660ce31 [core]          
     - prevent auto starting app after bootup (nivranaitsirhc)  
