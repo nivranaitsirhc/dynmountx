@@ -149,7 +149,12 @@ bind_me() {
 
     logme debug "bind_me() - mounting.."
     installed_path="$(pm path "$PROC" | head -1 | sed 's/^package://g' )"
-    mount -o bind "$path_file_apk_module_base" "$installed_path" || return 1
+    log_mount=$(mount -o bind "$path_file_apk_module_base" "$installed_path")
+    [ ! $? = 0 ] && {
+        logme error "bind_me() failed to mount -> $log_mount"
+        logger_check
+        return 1
+    }
 
     logme debug "bind_me() - verifying mount.."
     if mount | grep -q "$installed_path";then
@@ -185,11 +190,22 @@ install_me() {
     done
 
     logme debug "install_me() - installing original apk.."
-    pm install -d "$path_file_apk_module_orig" || return 1
+    log_install=$(pm install -d "$path_file_apk_module_orig")
+    [ ! $? = 0 ] && {
+        logme error "install_me() failed to install -> $log_install"
+        logger_check
+        return 1
+    }
 
     logme debug "install_me() - mounting base apk"
     installed_path="$(pm path "$PROC" | head -1 | sed 's/^package://g' )"
-    mount -o bind "$path_file_apk_module_base" "$installed_path" || return 1
+    log_mount=$(mount -o bind "$path_file_apk_module_base" "$installed_path")
+    [ ! $? = 0 ] && {
+        logme error "install_me() failed to mount -> $log_mount"
+        logger_check
+        return 1
+    }
+
     
     version_apk_module_base=""
     version_apk_module_orig=""
