@@ -1,6 +1,6 @@
 {
-    "version": "v1.2.5",
-    "versionCode": 10205,
-    "zipUrl": "https://github.com/nivranaitsirhc/dynmountx/releases/download/v1.2.5/dynmountx_v1.2.5_beta-channel.zip",
+    "version": "v1.3.0.rc.1",
+    "versionCode": 10300,
+    "zipUrl": "https://github.com/nivranaitsirhc/dynmountx/releases/download/v1.3.0.rc.1/dynmountx_v1.3.0.rc.1_beta-channel.zip",
     "changelog": "https://raw.githubusercontent.com/nivranaitsirhc/dynmountx/bleeding/changelog_dev.md" 
 }

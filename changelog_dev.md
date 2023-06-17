@@ -1,4 +1,9 @@
 # Dynamic Mount ~ Changelog
+## v1.3.0.rc.1 
+- 660ce31 [core]          
+    - prevent auto starting app after bootup (nivranaitsirhc)  
+- 80607f3 [core]          
+    - capture mount and install failure messages to logging (nivranaitsirhc)    
 ## v1.2.5 
 - 3b12e85 [core]          
     - convert manager.sh as an executable (nivranaitsirhc)  

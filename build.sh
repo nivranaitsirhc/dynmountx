@@ -165,7 +165,7 @@ zip -r -9 "$ROOTDIR/release/$target_zip_beta_channel" ./
     printf "%s\n" "--------------------------------------------"
     cp -rf "$ROOTDIR/configs/module.prop" "$ROOTDIR/build/module.prop"
     # trim files
-    find ./build -name "*.sh" -exec sed -i '/^\s*# /d;/^\s*$/d;/logme debug/d' {} \;
+    find ../build -name "*.sh" -exec sed -i '/^\s*# /d;/^\s*$/d;/logme debug/d' {} \;
     zip -r -9 "$ROOTDIR/release/$target_zip_release_channel" ./
 }
 cd ../
