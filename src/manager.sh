@@ -13,6 +13,10 @@ MIRROR="$MAGISKTMP/.magisk/mirror"
 # magisk Busybox & module local binaries
 PATH="$MODDIR/bin:$MAGISKTMP/.magisk/busybox:$PATH"
 
+# no auto restart
+noRestart=false
+[ "$1" = "disableRestart" ] && noRestart=true
+
 # config-static_variables 
 # -----------------------
 # apps folder
@@ -39,7 +43,14 @@ path_file_tag_install="$path_dir_apps_storage/$PROC/install"
 # apps tag
 path_file_tag_mounted="$path_dir_apps_module/$PROC/mounted"
 
-# dummy fn
+# logger library required variables
+# -----------------------
+# [[ -v STAGE ]]  || export STAGE=boot-service
+# [[ -v PROC ]]   || export PROC=magisk
+# [[ -v UID ]]    || { UID=$(id -g) && export UID; }
+# [[ -v PID ]]    || export PID=$$
+
+# logger dummy fn
 logme(){ :; }
 # source lib
 [ -d "$MODDIR/lib" ] && {
@@ -172,7 +183,7 @@ bind_me() {
     logme debug "bind_me() - Enabling App.."
     pm enable "$PROC"
 
-    start_me
+    [ "$noRestart" = false ] && start_me
 }
 # install apk and mount bind app
 install_me() {
@@ -230,7 +241,7 @@ install_me() {
     logme debug "install_me() - Enabling App.."
     pm enable "$PROC"
 
-    start_me
+    [ "$noRestart" = false ] && start_me
 }
 # normal main
 main_normal() {
