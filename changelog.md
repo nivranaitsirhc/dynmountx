@@ -1,4 +1,7 @@
 # Dynamic Mount ~ Changelog
+## v1.3.0.rc.3 
+- 5fa35d3 [core]          
+    - add tag file all, by default this prevents install to work profiles and other profiles (nivranaitsirhc)    
 ## v1.3.0.rc.1 
 - 80607f3 [core]          
     - capture mount and install failure messages to logging (nivranaitsirhc)  
