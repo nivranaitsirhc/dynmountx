@@ -1,4 +1,11 @@
 # Dynamic Mount ~ Changelog
+## v1.3.0.rc.4 
+- ebcfb49 [core]          
+    - add bootscript flag to prevent dynmount from running while service.sh is active (nivranaitsirhc)  
+- bb66f1f [core]          
+    - fix service.sh permission error and revert to ls in querying the packages (nivranaitsirhc)  
+- 959217a [core]          
+    - utilize old bin if download of aapt2 fails (nivranaitsirhc)    
 ## v1.3.0.rc.3 
 - 5fa35d3 [core]          
     - add tag file all, by default this prevents install to work profiles and other profiles (nivranaitsirhc)    
