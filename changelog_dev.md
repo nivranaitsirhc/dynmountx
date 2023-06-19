@@ -1,4 +1,7 @@
 # Dynamic Mount ~ Changelog
+## v1.3.0.rc.5 
+- 438208b [fix]           
+    - fix offline install copying bin into bin (nivranaitsirhc)    
 ## v1.3.0.rc.4 
 - 959217a [core]          
     - utilize old bin if download of aapt2 fails (nivranaitsirhc)  

@@ -1,4 +1,7 @@
 # Dynamic Mount ~ Changelog
+## v1.3.0.rc.5 
+- 438208b [fix]           
+    - fix offline install copying bin into bin (nivranaitsirhc)    
 ## v1.3.0.rc.4 
 - ebcfb49 [core]          
     - add bootscript flag to prevent dynmount from running while service.sh is active (nivranaitsirhc)  
