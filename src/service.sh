@@ -47,14 +47,15 @@ logger_check(){
     logger_check
     return 1
 }
-
-find /data/adb/apps -type d -mindepth 1 -maxdepth 1 -printf '%f\n' | while read -r PROC; do
+o
+ls "/data/adb/apps" | while read -r PROC; do
     if [ ! -f "/data/adb/apps/$PROC/disable" ];then
+        export PROC
         "$MODDIR/manager.sh" disableRestart
     else
         logme stats "loop(): skipping $PROC, disable tag found"
     fi
 done
 
-logsme stats "done boot-script"
+logme stats "done boot-script"
 logger_check

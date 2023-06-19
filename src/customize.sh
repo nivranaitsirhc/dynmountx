@@ -62,6 +62,7 @@ ui_print "- setting permissions."
 set_perm_recursive "$MODPATH/bin"   root root 0755 0755 u:object_r:system_file:s0
 set_perm_recursive "$MODPATH/lib"   root root 0755 0644 u:object_r:system_file:s0
 set_perm "$MODPATH/manager.sh" root root 0755 u:object_r:system_file:s0
+set_perm "$MODPATH/service.sh" root root 0755 u:object_r:system_file:s0
 
 # check for proccess monitor
 [ ! -d "/data/adb/modules/magisk_proc_monitor" ] && {
