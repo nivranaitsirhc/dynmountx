@@ -2,6 +2,9 @@
 # shellcheck shell=bash
 # shellcheck source=/dev/null
 
+# Wait until boot is completed
+until [ "$(getprop sys.boot_completed)" = 1 ];do sleep 1;done
+
 # magisk_module required
 MODDIR="${0%/*}"
 # MODNAME="${MODDIR##*/}"
