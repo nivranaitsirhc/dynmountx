@@ -1,4 +1,11 @@
 # Dynamic Mount ~ Changelog
+## v1.3.0.rc.7 
+- 2e089f7 [core]          
+    - add new tag: disable and enable. (nivranaitsirhc)  
+- c0f9267 [fix]           
+    - fix install error caused by typo. capture stderr to stdout in logging install and bind commands. refactor start_me() to accect noRestart flag (nivranaitsirhc)  
+- 94b4a94 [fix]           
+    - fix service.sh failing due to executing before bootcomplete (nivranaitsirhc)    
 ## v1.3.0.rc.6 
 - 7900698 [core]          
     - move bootscript detection to dynmount.sh (nivranaitsirhc)    
