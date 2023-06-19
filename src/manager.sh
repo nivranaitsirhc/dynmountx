@@ -102,7 +102,7 @@ logger_check(){
 }
 # send notifications
 send_notification() {
-    su 2000 -c "cmd notification post -S bigtext -t 'DynMountX' 'Tag' '$(printf "$1")'"
+    su 2000 -c "cmd notification post -S bigtext -t 'DynMountX' 'Tag' '$(printf "%s" "$1")'"
 }
 # get apk version
 get_apk_version() {
@@ -137,13 +137,18 @@ set_permissions_recursive() {
 }
 # restart the app and prevent re-run of the script
 start_me() {
-    if [ ! -f "$path_file_tag_mounted" ];then
-        logme debug "start_me() - restarting $PROC"
-        am start -n "$(cmd package resolve-activity --brief "$PROC" | tail -n 1)"
+    touch "$path_file_tag_mounted"
+
+    [ $noRestart = true ] && {
+        logme debug "start_me() - skipping restart."
         touch "$path_file_tag_mounted"
-        # terminate the script
         return 0
-    fi
+    }
+
+    logme debug "start_me() - restarting $PROC"
+    am start -n "$(cmd package resolve-activity --brief "$PROC" | tail -n 1)"
+    # terminate the script
+    exit 0
 }
 # mount bind app
 bind_me() {
@@ -161,7 +166,7 @@ bind_me() {
 
     logme debug "bind_me() - mounting.."
     installed_path="$(pm path "$PROC" | head -1 | sed 's/^package://g' )"
-    log_mount=$(mount -o bind "$path_file_apk_module_base" "$installed_path")
+    log_mount=$(mount -o bind "$path_file_apk_module_base" "$installed_path" 2>&1)
     [ ! $? = 0 ] && {
         logme error "bind_me() failed to mount -> $log_mount"
         logger_check
@@ -170,10 +175,10 @@ bind_me() {
 
     logme debug "bind_me() - verifying mount.."
     if mount | grep -q "$installed_path";then
-        logme stats "bind_me() - Mounted!"
+        logme stats "bind_me() - mounted!"
         send_notification "Successfully Mounted!\n$PROC"
     else
-        logme error "bind_me() - Failed to Mount.."
+        logme error "bind_me() - failed to Mount.."
     fi
 
     [ -d "/data/data/$PROC/cache/" ] && {
@@ -181,10 +186,10 @@ bind_me() {
         rm -rf "/data/data/$PROC/cache/"
     }
 
-    logme debug "bind_me() - Enabling App.."
-    pm enable "$PROC"
+    # logme debug "bind_me() - enabling App.."
+    # pm enable "$PROC"
 
-    [ "$noRestart" = false ] && start_me
+    start_me
 }
 # install apk and mount bind app
 install_me() {
@@ -201,14 +206,14 @@ install_me() {
         umount -l "$base_apk"
     done
 
-    user_install="-user 0"
+    user_install="--user 0"
 
     [ -f "$path_file_tag_install_all" ] && {
         user_install=""
     }
 
     logme debug "install_me() - installing original apk.."
-    log_install=$(pm install -d $user_install "$path_file_apk_module_orig")
+    log_install=$(pm install -d "$user_install" "$path_file_apk_module_orig" 2>&1)
     [ ! $? = 0 ] && {
         logme error "install_me() failed to install -> $log_install"
         logger_check
@@ -217,7 +222,7 @@ install_me() {
 
     logme debug "install_me() - mounting base apk"
     installed_path="$(pm path "$PROC" | head -1 | sed 's/^package://g' )"
-    log_mount=$(mount -o bind "$path_file_apk_module_base" "$installed_path")
+    log_mount=$(mount -o bind "$path_file_apk_module_base" "$installed_path" 2>&1)
     [ ! $? = 0 ] && {
         logme error "install_me() failed to mount -> $log_mount"
         logger_check
@@ -234,10 +239,10 @@ install_me() {
 
     logme debug "install_me() - verifying mount"
     if mount | grep -q "$installed_path";then
-        logme stats "install_me() - Mounted!"
+        logme stats "install_me() - mounted!"
         send_notification "Successfully Mounted!\n$PROC"
     else
-        logme error "install_me() - Failed to Mount."
+        logme error "install_me() - failed to Mount."
     fi
 
     [ -d "/data/data/$PROC/cache/" ] && {
@@ -245,10 +250,10 @@ install_me() {
         rm -rf "/data/data/$PROC/cache/"
     }
 
-    logme debug "install_me() - Enabling App.."
-    pm enable "$PROC"
+    # logme debug "install_me() - enabling App.."
+    # pm enable "$PROC"
 
-    [ "$noRestart" = false ] && start_me
+    start_me
 }
 # normal main
 main_normal() {
