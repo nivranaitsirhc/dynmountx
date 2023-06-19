@@ -39,6 +39,8 @@ path_file_tag_skip="$path_dir_apps_storage/$PROC/skip"
 path_file_tag_force="$path_dir_apps_storage/$PROC/force"
 path_file_tag_mirror="$path_dir_apps_storage/$PROC/mirror"
 path_file_tag_remove="$path_dir_apps_storage/$PROC/remove"
+path_file_tag_enable="$path_dir_apps_storage/$PROC/enable"
+path_file_tag_disable="$path_dir_apps_storage/$PROC/disable"
 path_file_tag_install="$path_dir_apps_storage/$PROC/install"
 path_file_tag_install_all="$path_dir_apps_storage/$PROC/all"
 # apps tag
@@ -84,7 +86,7 @@ logger_check(){
 # cleanup
 [ -f "$path_file_tag_mounted" ] && {
     logme stats "detected restart tag file. skipping this process.."
-    rm -rf "$path_file_tag_mounted"
+    rm -f "$path_file_tag_mounted"
     logger_check
     return 0
 }
@@ -98,7 +100,7 @@ logger_check(){
         return 0
     }
     # remove path process
-    rm -rf "$path_file_tag_process"
+    rm -f "$path_file_tag_process"
 }
 # send notifications
 send_notification() {
@@ -158,7 +160,7 @@ bind_me() {
     # logme debug "bind_me() - disabling app.."
     # pm disable "$PROC"
 
-    logme debug "bind_me() - unmounting remants.."
+    logme debug "bind_me() - checking remants.."
     mount | grep "$PROC" | cut -d ' ' -f 3 | while IFS= read -r base_apk || [ -n "$base_apk" ]; do
         logme debug "bind_me() - unmounting: $base_apk"
         umount -l "$base_apk"
@@ -200,7 +202,7 @@ install_me() {
     # logme debug "install_me() - disabling app.."
     # pm disable "$PROC"
 
-    logme debug "install_me() - unmounting remants.."
+    logme debug "install_me() - checking remants.."
     mount | grep "$PROC" | cut -d ' ' -f 3 | while IFS= read -r base_apk || [ -n "$base_apk" ]; do
         logme debug "install_me() - unmounting: $base_apk"
         umount -l "$base_apk"
@@ -336,12 +338,30 @@ main() {
         logme debug "main() - processing tags."
         [ ! -d "$path_dir_apps_module/$PROC" ]  && mkdir -p "$path_dir_apps_module/$PROC"
         [ ! -d "$path_dir_apps_storage/$PROC" ] && mkdir -p "$path_dir_apps_storage/$PROC"
+        [ -f "$path_file_tag_enable" ] && {
+            logme debug "main() - tag:enable"
+            rm -f "$path_file_tag_enable"
+            logme debug "main() - tag:enable - removing module disable tag"
+            rm -f "$path_dir_apps_module/$PROC/disable"
+        }
         ## tag file mode
+        [ -f "$path_file_tag_disable" ] && {
+            logme debug "main() - tag:disable"
+            rm -f "$path_file_tag_disable"
+            logme debug "main() - tag:disable - checking remnants"
+            mount | grep "$PROC" | cut -d ' ' -f 3 | while IFS= read -r base_apk || [ -n "$base_apk" ]; do
+                logme debug "main() - tag:disable - unmounting: $base_apk"
+                umount -l "$base_apk"
+            done
+            logme debug "main() - tag:disable - creating disable tag file and exiting.."
+            touch "$path_dir_apps_module/$PROC/disable"
+            return 0
+        }
         [ -f "$path_file_tag_install" ] && {
             # install
             # install the package_dir
             logme debug "main() - tag:install"
-            rm -rf "$path_file_tag_install"
+            rm -f "$path_file_tag_install"
             if [ -f "$path_file_apk_storage_base" ] && [ -f "$path_file_apk_storage_orig" ]; then
                 # cp to module
                 logme debug "main() - tag:install - copying storage to module dir"
@@ -375,7 +395,7 @@ main() {
             # force
             # force mount
             logme debug "main() - tag:force_mount"
-            rm -rf "$path_file_tag_force"
+            rm -f "$path_file_tag_force"
             if [ -f "$path_file_apk_module_base" ] && [ -f "$path_file_apk_module_base" ]; then
                 bind_me || return 1
                 return 0
@@ -395,30 +415,36 @@ main() {
             # remove
             # remove the module package dir
             logme debug "main() - tag:remove"
-            rm -rf "$path_file_tag_remove"
+            rm -f "$path_file_tag_remove"
             # unmount remnants
+            logme debug "main() - tag:remove - checking remnants.."
              mount | grep "$PROC" | cut -d ' ' -f 3 | while IFS= read -r base_apk || [ -n "$base_apk" ]; do
                 logme debug "main() - tag:remove - unmounting: $base_apk"
                 umount -l "$base_apk"
             done
             # remove package
-            rm -rf "${path_dir_apps_module:?}/$PROC" && touch "$path_dir_apps_storage/$PROC/remove_success"
+            rm -f "${path_dir_apps_module:?}/$PROC" && touch "$path_dir_apps_storage/$PROC/remove_success"
             return 0
         }
         [ -f "$path_file_tag_mirror" ] && [ ! -f "$path_file_tag_global_mirror" ] && {
             # mirror app level
             # mirror the package_name dir to internal directory
             logme debug "main() - tag:mirror_app_level"
-            rm -rf "$path_file_tag_mirror"
+            rm -f "$path_file_tag_mirror"
             cp -rf "${path_dir_apps_module:?}/$PROC" "$path_dir_apps_storage"
         }
         [ -f "$path_file_tag_global_mirror" ] && {
             # mirror global
             # mirror the apps dir to root internal directory
             logme debug "main() - tag:mirror_global"
-            rm -rf "$path_file_tag_global_mirror"
+            rm -f "$path_file_tag_global_mirror"
             cp -rf "$path_dir_apps_module" "$path_dir_storage"
         }
+    }
+    # check if disable tag is present in module
+    [ -f "$path_dir_apps_module/$PROC/disable" ] && {
+        logme stats "main() - disable tag present in module. skipping.."
+        return 0
     }
     # proceed with normal checks
     main_normal
