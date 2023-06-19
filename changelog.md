@@ -1,4 +1,7 @@
 # Dynamic Mount ~ Changelog
+## v1.3.0.rc.6 
+- 7900698 [core]          
+    - move bootscript detection to dynmount.sh (nivranaitsirhc)    
 ## v1.3.0.rc.5 
 - 438208b [fix]           
     - fix offline install copying bin into bin (nivranaitsirhc)    
