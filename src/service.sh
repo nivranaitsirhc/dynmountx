@@ -10,12 +10,17 @@ MAGISKTMP=$(magisk --path) || MAGISKTMP=/sbin
 
 MIRROR="$MAGISKTMP/.magisk/mirror"
 
+# disable manager.sh
+echo 0 > "$MODDIR/bootscript"
+
 # logger library required variables
 # -----------------------
 [[ -v STAGE ]]  || export STAGE=boot-service
 # [[ -v PROC ]]   || export PROC=magisk
 [[ -v UID ]]    || { UID=$(id -g) && export UID; }
 [[ -v PID ]]    || export PID=$$
+
+
 
 # logger dummy function
 logme(){ :; }
@@ -47,7 +52,7 @@ logger_check(){
     logger_check
     return 1
 }
-o
+
 ls "/data/adb/apps" | while read -r PROC; do
     if [ ! -f "/data/adb/apps/$PROC/disable" ];then
         export PROC
@@ -58,4 +63,5 @@ ls "/data/adb/apps" | while read -r PROC; do
 done
 
 logme stats "done boot-script"
+rm -f "$MODDIR/bootscript"
 logger_check
