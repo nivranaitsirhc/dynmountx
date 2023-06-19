@@ -24,6 +24,8 @@ case "$ARCH" in
     ;;
 esac
 
+# download latest binaries
+online_bin=true
 
 wgetURI="https://github.com/nivranaitsirhc/termux-aapt/raw/main/prebuilt-binary/${target_bin_abi}/aapt2"
 [ "$API" -ge "31" ] && \
@@ -31,17 +33,26 @@ wgetURI="https://github.com/nivranaitsirhc/termux-aapt/raw/main/prebuilt-binary-
 
 [ ! -d "$MODPATH/bin" ] && mkdir -p "$MODPATH/bin"
 ui_print "- downloading $ARCH aapt2.."
-wget "$wgetURI" -O "$MODPATH/bin/aapt2" || abort "* unable to connect. Please check your network and try again."
+wget "$wgetURI" -O "$MODPATH/bin/aapt2" || ui_print "- unable to connect. please check your network."
 
 if [ -f "$MODPATH/bin/aapt2" ];then
     chmod +x "$MODPATH/bin/aapt2"
     "$MODPATH/bin/aapt2" version || {
-        abort "* downloaded aapt2 is currupted. Please try again."
+        ui_print "- downloaded aapt2 is currupted."
+        online_bin=false
     }
 else
     ui_print "- missing downloaded aapt2 file."
-    abort "* please check your network and try again."
+    online_bin=false
 fi
+
+[ $online_bin = false ] && {
+    ui_print "- using old binaries"
+    cp -af "/data/adb/modules/dynmountx/bin" "$MODPATH/bin"
+}
+
+[ ! -f "$MODPATH/bin/aapt2" ] && abort "- unable to install binary files."
+
 
 internal_storage_dir="/sdcard/DynamicMountManagerX"
 # setup new sdcard dir
