@@ -48,7 +48,7 @@ fi
 
 [ $online_bin = false ] && {
     ui_print "- using old binaries"
-    cp -af "/data/adb/modules/dynmountx/bin" "$MODPATH/bin"
+    cp -af "/data/adb/modules/dynmountx/bin" "$MODPATH"
 }
 
 [ ! -f "$MODPATH/bin/aapt2" ] && abort "- unable to install binary files."
