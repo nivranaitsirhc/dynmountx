@@ -40,6 +40,7 @@ path_file_tag_force="$path_dir_apps_storage/$PROC/force"
 path_file_tag_mirror="$path_dir_apps_storage/$PROC/mirror"
 path_file_tag_remove="$path_dir_apps_storage/$PROC/remove"
 path_file_tag_install="$path_dir_apps_storage/$PROC/install"
+path_file_tag_install_all="$path_dir_apps_storage/$PROC/all"
 # apps tag
 path_file_tag_mounted="$path_dir_apps_module/$PROC/mounted"
 
@@ -200,8 +201,14 @@ install_me() {
         umount -l "$base_apk"
     done
 
+    user_install="-user 0"
+
+    [ -f "$path_file_tag_install_all" ] && {
+        user_install=""
+    }
+
     logme debug "install_me() - installing original apk.."
-    log_install=$(pm install -d "$path_file_apk_module_orig")
+    log_install=$(pm install -d $user_install "$path_file_apk_module_orig")
     [ ! $? = 0 ] && {
         logme error "install_me() failed to install -> $log_install"
         logger_check
