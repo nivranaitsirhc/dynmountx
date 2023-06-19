@@ -72,6 +72,23 @@ prepareEnterMntNs(){
 
 	# app specific
     if [ -d "$path_dir_apps_module/$PROC" ] || [ -d "$path_dir_apps_storage/$PROC" ]; then
+
+        # detect boot-script tag
+        [ -f "$MODDIR/bootscript" ] && {
+            bootscriptcount=$(cat "$MODDIR/bootscript")
+            [ "$bootscriptcount" -eq 0 ] && {
+                logme stats "current bootscript $bootscriptcount count, exiting and incrementing"
+                bootscriptcount=$((bootscriptcount + 1))
+                echo "$bootscriptcount" > "$MODDIR/bootscript"
+                logger_check
+                return 1
+            }
+            [ "$bootscriptcount" -gt 10 ] && {
+                logme error "number of boot checks exceeded this might be caused by a dirty exit. proceeding.."
+            }
+            rm -f "$MODDIR/bootscript"
+        }
+        
         su 0 -mm -c "$MODDIR/manager.sh"
         exit_script 1
     fi
