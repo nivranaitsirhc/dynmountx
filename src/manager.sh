@@ -215,7 +215,7 @@ install_me() {
     }
 
     logme debug "install_me() - installing original apk.."
-    log_install=$(pm install -d "$user_install" "$path_file_apk_module_orig" 2>&1)
+    log_install=$(pm install -d $user_install "$path_file_apk_module_orig" 2>&1)
     [ ! $? = 0 ] && {
         logme error "install_me() failed to install -> $log_install"
         logger_check
