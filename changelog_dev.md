@@ -1,4 +1,12 @@
 # Dynamic Mount ~ Changelog
+## v1.3.0.rc.9 
+- 9a9f7a7 [builder]       
+    - change return 1 instead of exit 1 (nivranaitsirhc)  
+- 6e190e1 [builder]       
+    - stop building from anywhere (nivranaitsirhc)    
+## v1.3.0.rc.8 
+- 1793f4a [fix]           
+    - fix typo causing install error (nivranaitsirhc)    
 ## v1.3.0.rc.7 
 - 2e089f7 [core]          
     - add new tag: disable and enable. (nivranaitsirhc)  

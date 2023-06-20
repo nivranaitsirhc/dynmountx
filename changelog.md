@@ -1,4 +1,7 @@
 # Dynamic Mount ~ Changelog
+## v1.3.0.rc.8 
+- 1793f4a [fix]           
+    - fix typo causing install error (nivranaitsirhc)    
 ## v1.3.0.rc.7 
 - 2e089f7 [core]          
     - add new tag: disable and enable. (nivranaitsirhc)  
