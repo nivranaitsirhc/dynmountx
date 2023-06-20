@@ -104,7 +104,7 @@ logger_check(){
 }
 # send notifications
 send_notification() {
-    su 2000 -c "cmd notification post -S bigtext -t 'DynMountX' 'Tag' '$(printf "%s" "$1")'"
+    su 2000 -c "cmd notification post -S bigtext -t 'DynMountX' 'Tag' '$(printf "$1")'"
 }
 # get apk version
 get_apk_version() {
