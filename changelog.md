@@ -1,4 +1,7 @@
 # Dynamic Mount ~ Changelog
+## v1.3.0.rc.10 
+- 18a9517 [fix]           
+    - revert send_notification changes (nivranaitsirhc)    
 ## v1.3.0.rc.8 
 - 1793f4a [fix]           
     - fix typo causing install error (nivranaitsirhc)    

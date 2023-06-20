@@ -1,4 +1,7 @@
 # Dynamic Mount ~ Changelog
+## v1.3.0.rc.10 
+- 18a9517 [fix]           
+    - revert send_notification changes (nivranaitsirhc)    
 ## v1.3.0.rc.9 
 - 9a9f7a7 [builder]       
     - change return 1 instead of exit 1 (nivranaitsirhc)  
