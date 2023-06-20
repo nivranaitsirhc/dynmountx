@@ -56,9 +56,16 @@ logme () {
 
 # get latest tag
 # latest_tag_name="$(git describe --tags --abbrev=0)"
+current_branch="$(git rev-parse --abbrev-ref HEAD)"
 latest_tag_name="$(git tag --sort=committerdate | tail -n1)"
 latest_tag_code="$(echo "$latest_tag_name" | awk -F '[v._]' '{printf "%02i%02i%02i",$2,$3,$4;}')"
 latest_tag_code_num="$(echo "$latest_tag_name" | awk -F '[v._]' '{printf "%01i%02i%02i",$2,$3,$4;}')"
+
+# target HEAD if release is not specified
+[ ! "$1" == "release" ] && {
+    latest_tag_name="$current_branch"
+}
+
 if echo "$latest_tag_name" | grep -q beta; then
     latest_tag_beta=true
 else
@@ -73,9 +80,16 @@ printf "%s\n" "--------------------------------------------"
 printf "Getting latest config from GIT....\n"
 printf "%s\n" "--------------------------------------------"
 
-logme debug main "name=$latest_tag_name"
-logme debug main "code=$latest_tag_code"
-logme debug main "beta=$latest_tag_beta"
+logme stats main "name=$latest_tag_name"
+logme stats main "code=$latest_tag_code"
+logme stats main "beta=$latest_tag_beta"
+logme stats main "branch=$current_branch"
+
+# disable building unless we are on bleeding
+[ ! "$current_branch" = "bleeding" ] && {
+    logme error main "I cannot bluild here @$current_branch. Please switch to Bleeding Branch"
+    return 1
+}
 
 
 # if version is beta update json_beta
@@ -224,6 +238,7 @@ cat "$ROOTDIR/$target_dev_changelog"
 
 
 [ "$1" == "release" ] && {
+    logme stats main "committing build..."
     git add changelog.md changelog_dev.md configs && \
     git commit -m "[release] build.sh invoked relase for $latest_tag_name @ $(date)"
     echo "added commit"
