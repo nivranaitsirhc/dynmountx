@@ -84,23 +84,27 @@ logger_check(){
         rm "$path_file_logs"
     fi
 }
+# clean-exit
+clean_exit() {
+    local exitCode="${1:-0}"
+    logger_check
+    exit "$exitCode"
+}
+
 # sanity checks
 [ ! -d "$MIRROR/data" ] && {
     logme error "we failed to detect magisk mirror mount. skipping this process.."
-    logger_check
-    return 1
+    clean_exit 1
 }
 [[ ! -v PROC ]] && {
     logme error "we are expecting PROC but it is not defined. skipping this process.."
-    logger_check
-    return 1
+    clean_exit 1
 }
 # cleanup
 [ -f "$path_file_tag_mounted" ] && {
     logme stats "detected restart tag file. skipping this process.."
     rm -f "$path_file_tag_mounted"
-    logger_check
-    return 0
+    clean_exit 1
 }
 # prevent multiple process
 [ -f "$path_file_tag_process" ] && {
@@ -108,8 +112,7 @@ logger_check(){
     _PID="$(cat "$path_file_tag_process")"
     pidof "$_PID" && {
         logme stats "$_PID is still running. skipping this process.."
-        logger_check
-        return 0
+        clean_exit 1
     }
     # remove path process
     rm -f "$path_file_tag_process"
@@ -183,8 +186,7 @@ bind_me() {
     log_mount=$(mount -o bind "$path_file_apk_module_base" "$installed_path" 2>&1)
     [ ! $? = 0 ] && {
         logme error "bind_me() failed to mount -> $log_mount"
-        logger_check
-        return 1
+        clean_exit 1
     }
 
     logme debug "bind_me() - verifying mount.."
@@ -230,8 +232,7 @@ install_me() {
     log_install=$(pm install -d $user_install "$path_file_apk_module_orig" 2>&1)
     [ ! $? = 0 ] && {
         logme error "install_me() failed to install -> $log_install"
-        logger_check
-        return 1
+        clean_exit 1
     }
 
     logme debug "install_me() - mounting base apk"
@@ -239,8 +240,7 @@ install_me() {
     log_mount=$(mount -o bind "$path_file_apk_module_base" "$installed_path" 2>&1)
     [ ! $? = 0 ] && {
         logme error "install_me() failed to mount -> $log_mount"
-        logger_check
-        return 1
+        clean_exit 1
     }
 
     
