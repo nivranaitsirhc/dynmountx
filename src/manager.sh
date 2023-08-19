@@ -46,6 +46,11 @@ path_file_tag_install_all="$path_dir_apps_storage/$PROC/all"
 # apps tag
 path_file_tag_mounted="$path_dir_apps_module/$PROC/mounted"
 
+# log instance
+path_file_logs="$MODDIR/logs/$(date +%y-%m-%d_%H-%M-%S).log"
+# create module logs dir if not present
+[ ! -d "$MODDIR/logs" ] && mkdir -p "$MODDIR/logs"
+
 # logger library required variables
 # -----------------------
 # [[ -v STAGE ]]  || export STAGE=boot-service
@@ -65,11 +70,18 @@ logger_process=$(printf "%-6s %-6s" "$UID" "$PID")
 logger_special=$(printf "%-18s - %s" "$(basename "$0"):$STAGE" "$PROC")
 # logger
 logger_check(){
-    if [[ -v LOGGER_MODULE ]] && [ -f "$path_file_tag_global_debug" ]; then
-        [ -f "$path_file_logs" ] && {
-            cat "$path_file_logs" >> "$path_dir_storage/module.log"
-            printf "" > "$path_file_logs"
-        }
+    # check if logger module is loaded
+    if [[ -v LOGGER_MODULE ]]; then
+        if [ -f "$path_file_tag_global_debug" ]; then
+            # concat to internal storage module.log
+            [ -f "$path_file_logs" ] && {
+                cat "$path_file_logs" >> "$path_dir_storage/module.log"
+            }
+        else 
+            # concat to module dir log
+            cat "$path_file_logs" >> "$MODDIR/logs/module.log"
+        fi
+        rm "$path_file_logs"
     fi
 }
 # sanity checks
