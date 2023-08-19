@@ -1,4 +1,11 @@
 # Dynamic Mount ~ Changelog
+## v1.3.1 
+- 5f62607 [core]          
+    - refactor install() & bind() (nivranaitsirhc)  
+- a8a295c [core]          
+    - refactor script exit (nivranaitsirhc)  
+- a0c1bec [core]          
+    - update logger to be per instance (nivranaitsirhc)    
 ## v1.3.0.rc.10 
 - 18a9517 [fix]           
     - revert send_notification changes (nivranaitsirhc)    
