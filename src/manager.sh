@@ -26,7 +26,7 @@ path_dir_apps_storage="$path_dir_storage/apps"
 # tag files
 path_file_tag_version_base="$path_dir_apps_module/$PROC/version_base"
 path_file_tag_version_orig="$path_dir_apps_module/$PROC/version_orig"
-path_file_tag_process="$path_dir_apps_module/$PROC/process"
+path_file_tag_process="$path_dir_apps_module/$PROC/running"
 # apk files
 path_file_apk_module_base="$path_dir_apps_module/$PROC/base.apk"
 path_file_apk_module_orig="$path_dir_apps_module/$PROC/original.apk"
@@ -90,37 +90,54 @@ clean_exit() {
     logger_check
     exit "$exitCode"
 }
-
-# sanity checks
-[ ! -d "$MIRROR/data" ] && {
-    logme error "we failed to detect magisk mirror mount. skipping this process.."
-    clean_exit 1
-}
-[[ ! -v PROC ]] && {
-    logme error "we are expecting PROC but it is not defined. skipping this process.."
-    clean_exit 1
-}
-# cleanup
-[ -f "$path_file_tag_mounted" ] && {
-    logme stats "detected restart tag file. skipping this process.."
-    rm -f "$path_file_tag_mounted"
-    clean_exit 1
-}
-# prevent multiple process
-[ -f "$path_file_tag_process" ] && {
-    # check if process is still running
-    _PID="$(cat "$path_file_tag_process")"
-    pidof "$_PID" && {
-        logme stats "$_PID is still running. skipping this process.."
-        clean_exit 1
-    }
-    # remove path process
-    rm -f "$path_file_tag_process"
-}
 # send notifications
 send_notification() {
     su 2000 -c "cmd notification post -S bigtext -t 'DynMountX' 'Tag' '$(printf "$1")'"
 }
+
+# check if PROC is defined
+[[ ! -v PROC ]] && {
+    logme error "we are expecting PROC but it is not defined. skipping this process.."
+    clean_exit 1
+}
+# check if mirror data is accessable
+[ ! -d "$MIRROR/data" ] && {
+    logme error "magisk mirror mount point is not accessable. skipping $PROC.."
+    clean_exit 1
+}
+# cleanup
+[ -f "$path_file_tag_mounted" ] && {
+    logme stats "detected restart tag file. skipping $PROC.."
+    rm -f "$path_file_tag_mounted"
+    clean_exit 1
+}
+# prevent multiple process
+# [ -f "$path_file_tag_process" ] && {
+#     # check if process is still running
+#     _PID="$(cat "$path_file_tag_process")"
+#     pidof "$_PID" && {
+#         logme stats "$_PID is still running. skipping this process.."
+#         clean_exit 1
+#     }
+#     # remove path process
+#     rm -f "$path_file_tag_process"
+# }
+# old way to detect process
+[ -f "$path_file_tag_process" ] && {
+    # check if running is within threshold
+    runningCount=$(cat "$path_file_tag_process")
+    if { [ -n "$runningCount" ] && [ "$runningCount" -ge "5" ]; }; then
+        logme debug "running tag: Reached the max allowed skip. removing tag and continuing.."
+        rm -f "$path_file_tag_process"
+    else
+        currentCount=$(("$runningCount" + 1))
+        echo "$currentCount" > "$path_file_tag_process"
+        logme debug "running tag: current count is $currentCount"
+        logme stats "running tag: another instance is currently mounting this $PROC. skipping..."
+        clean_exit 1
+    fi
+}
+
 # get apk version
 get_apk_version() {
     # 1 - variable to return
@@ -165,22 +182,28 @@ start_me() {
     logme debug "start_me() - restarting $PROC"
     am start -n "$(cmd package resolve-activity --brief "$PROC" | tail -n 1)"
     # terminate the script
-    exit 0
+    clean_exit 0
 }
 # mount bind app
 bind_me() {
     logme debug "bind_me() - $path_file_apk_module_base"
+
+    # stop $PROC
     logme debug "bind_me() - stopping app.."
     am force-stop "$PROC"
+
+    # disable $PROC
     # logme debug "bind_me() - disabling app.."
     # pm disable "$PROC"
 
+    # unmount previous mounts
     logme debug "bind_me() - checking remants.."
     mount | grep "$PROC" | cut -d ' ' -f 3 | while IFS= read -r base_apk || [ -n "$base_apk" ]; do
         logme debug "bind_me() - unmounting: $base_apk"
         umount -l "$base_apk"
     done
 
+    # new mount
     logme debug "bind_me() - mounting.."
     installed_path="$(pm path "$PROC" | head -1 | sed 's/^package://g' )"
     log_mount=$(mount -o bind "$path_file_apk_module_base" "$installed_path" 2>&1)
@@ -189,6 +212,7 @@ bind_me() {
         clean_exit 1
     }
 
+    # verify new mount
     logme debug "bind_me() - verifying mount.."
     if mount | grep -q "$installed_path";then
         logme stats "bind_me() - mounted!"
@@ -197,11 +221,13 @@ bind_me() {
         logme error "bind_me() - failed to Mount.."
     fi
 
+    # clear $PROC cache
     [ -d "/data/data/$PROC/cache/" ] && {
         logme debug "bind_me() - clearing cache"
         rm -rf "/data/data/$PROC/cache/"
     }
 
+    # re-enable $PROC
     # logme debug "bind_me() - enabling App.."
     # pm enable "$PROC"
 
@@ -209,32 +235,39 @@ bind_me() {
 }
 # install apk and mount bind app
 install_me() {
-    # install apk
     logme debug "install_me() - $path_file_apk_module_base"
+    
+    # stop $PROC
     logme debug "install_me() - stopping app.."
     am force-stop "$PROC"
+
+    # disable PROC
     # logme debug "install_me() - disabling app.."
     # pm disable "$PROC"
 
+    # unmount previous mounts
     logme debug "install_me() - checking remants.."
     mount | grep "$PROC" | cut -d ' ' -f 3 | while IFS= read -r base_apk || [ -n "$base_apk" ]; do
         logme debug "install_me() - unmounting: $base_apk"
         umount -l "$base_apk"
     done
 
+    # user install
     user_install="--user 0"
-
+    # disable user install
     [ -f "$path_file_tag_install_all" ] && {
         user_install=""
     }
 
+    # install original apk
     logme debug "install_me() - installing original apk.."
-    log_install=$(pm install -d $user_install "$path_file_apk_module_orig" 2>&1)
-    [ ! $? = 0 ] && {
+    log_install=$(pm install -r -d $user_install "$path_file_apk_module_orig" 2>&1)
+    [ ! "$?" -ne "0" ] && {
         logme error "install_me() failed to install -> $log_install"
         clean_exit 1
     }
 
+    # new bind
     logme debug "install_me() - mounting base apk"
     installed_path="$(pm path "$PROC" | head -1 | sed 's/^package://g' )"
     log_mount=$(mount -o bind "$path_file_apk_module_base" "$installed_path" 2>&1)
@@ -243,7 +276,7 @@ install_me() {
         clean_exit 1
     }
 
-    
+    # get new versions
     version_apk_module_base=""
     version_apk_module_orig=""
     get_apk_version version_apk_module_base "$path_file_apk_module_base"
@@ -251,6 +284,7 @@ install_me() {
     printf %s "$version_apk_module_base" > "$path_file_tag_version_base"
     printf %s "$version_apk_module_orig" > "$path_file_tag_version_orig"
 
+    # verify new bind
     logme debug "install_me() - verifying mount"
     if mount | grep -q "$installed_path";then
         logme stats "install_me() - mounted!"
@@ -259,11 +293,13 @@ install_me() {
         logme error "install_me() - failed to Mount."
     fi
 
+    # clear $PROC cache
     [ -d "/data/data/$PROC/cache/" ] && {
         logme debug "install_me() - clearing cache.."
         rm -rf "/data/data/$PROC/cache/"
     }
 
+    # re-enable $PROC
     # logme debug "install_me() - enabling App.."
     # pm enable "$PROC"
 
@@ -274,17 +310,20 @@ main_normal() {
     # check if base and original apk are present
     [ ! -f "$path_file_apk_module_base" ] && {
         logme error "main_normal() - missing base.apk"
-        return 1
+        clean_exit 1
     }
 
+    # get installed path
     installed_path="$(pm path "$PROC" | head -1 | sed 's/^package://g' )"
 
+    # version var
     version_apk_module_base=""
     version_apk_module_orig=""
     version_installed=""
 
     logme debug "main_normal() - getting versions.."
 
+    # get version for base apk
     if [ -f "$path_file_tag_version_base" ] && \
          grep '[^[:space:]]' "$path_file_tag_version_base"; then
         logme debug "main_normal() - using version_base file.."
@@ -294,6 +333,8 @@ main_normal() {
         get_apk_version version_apk_module_base "$path_file_apk_module_base"
         printf %s "$version_apk_module_base" >  "$path_file_tag_version_base"
     fi
+
+    # get version for original apk
     if { [ -f "$path_file_tag_version_orig" ] && \
         grep '[^[:space:]]' "$path_file_tag_version_orig"; }; then
         logme debug "main_normal() - using version_orig file.."
@@ -304,8 +345,10 @@ main_normal() {
         printf %s "$version_apk_module_orig" >  "$path_file_tag_version_orig"
     fi
     
+    # get version of installed app
     get_apk_version version_installed "$PROC"
     
+    # display versions
     logme debug "main_normal() - detected versions:"
     logme debug "main_normal() - installed   - $version_installed"
     logme debug "main_normal() - module_base - $version_apk_module_base"
@@ -313,20 +356,24 @@ main_normal() {
 
     # check version installed vs module
     if [ "$version_installed" != "$version_apk_module_base" ];then
+        # base does not match with installed
         logme error "main_normal() - version mismatch: installed=$version_installed, module=$version_apk_module_base"
         # check if base.apk matches original.apk
         [ "$version_apk_module_base" != "$version_apk_module_orig" ] && {
             logme error "main_normal() - version mismatch: base=$version_apk_module_base, original=$version_apk_module_orig"
             # exit
-            return 1
+            clean_exit 1
         }
+        # reinstall original apk and bind
         logme stats "main_normal() - reinstalling..., calling install_me()"
         install_me
-    elif [ "$version_installed" = "$version_apk_module_base" ];then
+    # elif [ "$version_installed" = "$version_apk_module_base" ];then
+    else
         # versions are aligned check if mounted
         if mount | grep -q "$installed_path";then
             logme stats "main_normal() - already mounted."
         else
+            # rebind
             logme stats "main_normal() - not mounted..., calling bind_me()"
             bind_me
         fi
@@ -462,8 +509,5 @@ main() {
     main_normal
 }
 main
-# clean up calls
-# store the current PID
-printf "$PID" > "$path_file_tag_process"
-# special tag debug
-logger_check
+# remove process tag
+clean_exit 0
