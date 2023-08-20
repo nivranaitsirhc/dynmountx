@@ -1,5 +1,9 @@
 # Dynamic Mount ~ Changelog
 ## v1.3.2 
+- d85a0f7 [fix]           
+    - update correct log function tag (nivranaitsirhc)  
+- d656e1b [builder]       
+    - update typo (nivranaitsirhc)  
 - bf41820 [core]          
     - refactor tag checks, try to copy installed original.apk (nivranaitsirhc)    
 ## v1.3.1 
