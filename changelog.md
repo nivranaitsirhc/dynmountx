@@ -1,4 +1,7 @@
 # Dynamic Mount ~ Changelog
+## v1.3.2 
+- bf41820 [core]          
+    - refactor tag checks, try to copy installed original.apk (nivranaitsirhc)    
 ## v1.3.1 
 - 5f62607 [core]          
     - refactor install() & bind() (nivranaitsirhc)  
