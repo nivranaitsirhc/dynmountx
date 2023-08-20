@@ -309,7 +309,7 @@ install_me() {
 main() {
     # check if base and original apk are present
     [ ! -f "$path_file_apk_module_base" ] && {
-        logme error "main_normal() - missing base.apk"
+        logme error "main() - missing base.apk"
         clean_exit 1
     }
 
@@ -321,15 +321,15 @@ main() {
     version_apk_module_orig=""
     version_installed=""
 
-    logme debug "main_normal() - getting versions.."
+    logme debug "main() - getting versions.."
 
     # get version for base apk
     if [ -f "$path_file_tag_version_base" ] && \
          grep '[^[:space:]]' "$path_file_tag_version_base"; then
-        logme debug "main_normal() - using version_base file.."
+        logme debug "main() - using version_base file.."
         version_apk_module_base=$(cat "$path_file_tag_version_base")
     else
-        logme debug "main_normal() - creating version_base file.."
+        logme debug "main() - creating version_base file.."
         get_apk_version version_apk_module_base "$path_file_apk_module_base"
         printf %s "$version_apk_module_base" >  "$path_file_tag_version_base"
     fi
@@ -337,10 +337,10 @@ main() {
     # get version for original apk
     if { [ -f "$path_file_tag_version_orig" ] && \
         grep '[^[:space:]]' "$path_file_tag_version_orig"; }; then
-        logme debug "main_normal() - using version_orig file.."
+        logme debug "main() - using version_orig file.."
         version_apk_module_orig=$(cat "$path_file_tag_version_orig")
     else
-        logme debug "main_normal() - creating version_orig file.."
+        logme debug "main() - creating version_orig file.."
         get_apk_version version_apk_module_orig "$path_file_apk_module_orig"
         printf %s "$version_apk_module_orig" >  "$path_file_tag_version_orig"
     fi
@@ -349,39 +349,39 @@ main() {
     get_apk_version version_installed "$PROC"
     
     # display versions
-    logme debug "main_normal() - detected versions:"
-    logme debug "main_normal() - installed   - $version_installed"
-    logme debug "main_normal() - module_base - $version_apk_module_base"
-    logme debug "main_normal() - module_orig - $version_apk_module_orig"
+    logme debug "main() - detected versions:"
+    logme debug "main() - installed   - $version_installed"
+    logme debug "main() - module_base - $version_apk_module_base"
+    logme debug "main() - module_orig - $version_apk_module_orig"
 
     # check version installed vs module
     if [ "$version_installed" != "$version_apk_module_base" ];then
         # base does not match with installed
-        logme error "main_normal() - version mismatch: installed=$version_installed, module=$version_apk_module_base"
+        logme error "main() - version mismatch: installed=$version_installed, module=$version_apk_module_base"
         # check if base.apk matches original.apk
         [ "$version_apk_module_base" != "$version_apk_module_orig" ] && {
-            logme error "main_normal() - version mismatch: base=$version_apk_module_base, original=$version_apk_module_orig"
+            logme error "main() - version mismatch: base=$version_apk_module_base, original=$version_apk_module_orig"
             # exit
             clean_exit 1
         }
         # reinstall original apk and bind
-        logme stats "main_normal() - reinstalling..., calling install_me()"
+        logme stats "main() - reinstalling..., calling install_me()"
         install_me
     # elif [ "$version_installed" = "$version_apk_module_base" ];then
     else
         # versions are aligned check if mounted
         if mount | grep -q "$installed_path";then
-            logme stats "main_normal() - already mounted."
+            logme stats "main() - already mounted."
         else
             # rebind
-            logme stats "main_normal() - not mounted..., calling bind_me()"
+            logme stats "main() - not mounted..., calling bind_me()"
             bind_me
         fi
     fi
 }
 # main process
 init_main() {
-    logme debug "main() - processing"
+    logme debug "init_main() - processing"
 
     # tag files check
     # 1.  "enable" tag file must be present in internal storage directory.
@@ -396,7 +396,7 @@ init_main() {
 
     # check path storage & enable tag file
     { [ -d "$path_dir_storage" ] && [ -f "$path_dir_storage/enable" ]; } && {
-        logme debug "main() - processing tags."
+        logme debug "init_main() - processing tags."
 
         # check module paths for currrent $PROC and create if necessary
         [ ! -d "$path_dir_apps_module/$PROC" ]  &&\
@@ -406,38 +406,38 @@ init_main() {
         
         # check enable tag file
         [ -f "$path_file_tag_enable" ] && {
-            logme debug "main() - tag:enable"
+            logme debug "init_main() - tag:enable"
             rm -f "$path_file_tag_enable"
-            logme debug "main() - tag:enable - removing module disable tag"
+            logme debug "init_main() - tag:enable - removing module disable tag"
             rm -f "$path_dir_apps_module/$PROC/disable"
         }
 
         # check disable tag file
         [ -f "$path_file_tag_disable" ] && {
-            logme debug "main() - tag:disable"
+            logme debug "init_main() - tag:disable"
             # remove tag
             rm -f "$path_file_tag_disable"
 
-            logme debug "main() - tag:disable - checking remnants"
+            logme debug "init_main() - tag:disable - checking remnants"
             mount | grep "$PROC" | cut -d ' ' -f 3 | while IFS= read -r base_apk || [ -n "$base_apk" ]; do
-                logme debug "main() - tag:disable - unmounting: $base_apk"
+                logme debug "init_main() - tag:disable - unmounting: $base_apk"
                 umount -l "$base_apk"
             done
 
-            logme debug "main() - tag:disable - creating disable tag file and exiting.."
+            logme debug "init_main() - tag:disable - creating disable tag file and exiting.."
             touch "$path_dir_apps_module/$PROC/disable"
             clean_exit 0
         }
 
         # check install tag file
         [ -f "$path_file_tag_install" ] && {
-            logme debug "main() - tag:install"
+            logme debug "init_main() - tag:install"
             # remove tag
             rm -f "$path_file_tag_install"
             
             if [ -f "$path_file_apk_storage_base" ] && [ -f "$path_file_apk_storage_orig" ]; then
                 # complete install, copy base and original apk
-                logme debug "main() - tag:install - copying storage to module dir"
+                logme debug "init_main() - tag:install - copying storage to module dir"
 
                 cp -rf "$path_file_apk_storage_base" "$path_file_apk_module_base"
                 cp -rf "$path_file_apk_storage_orig" "$path_file_apk_module_orig"
@@ -446,7 +446,7 @@ init_main() {
                 clean_exit 0
             elif [ -f "$path_file_apk_storage_base" ] && [ ! -f "$path_file_apk_storage_orig" ];then
                 # partial install copy base and implement bind mode.
-                logme debug "main() - tag:install - trying bind mode."
+                logme debug "init_main() - tag:install - trying bind mode."
 
                 version_apk_storage_base=""
                 version_installed=""
@@ -455,34 +455,34 @@ init_main() {
 
                 # compare base with installed version 
                 if [ "$version_apk_storage_base" = "$version_installed" ];then
-                    logme debug "main() - tag:install - copying storage base to module dir"
+                    logme debug "init_main() - tag:install - copying storage base to module dir"
                     if cp -rf "$path_file_apk_storage_base" "$path_file_apk_module_base";then
-                        logme debug "main() - tag:install - backing-up installed original.apk"
+                        logme debug "init_main() - tag:install - backing-up installed original.apk"
 
                         installed_path="$(pm path "$PROC" | head -1 | sed 's/^package://g' )"
                         cp -rf "$installed_path" "$path_file_apk_module_orig" ||\
-                        logme error "main() - tag:install - failed to copy original.apk from installed path"
+                        logme error "init_main() - tag:install - failed to copy original.apk from installed path"
                         
                         set_permissions_recursive "$path_dir_apps_module/$PROC" "root" "root" 0755 0644 u:object_r:magisk_file:s0
                         bind_me || clean_exit 1
                         clean_exit 0
                     else
-                        logme error "main() - tag:install - failed to copy base.apk to module app dir"
+                        logme error "init_main() - tag:install - failed to copy base.apk to module app dir"
                     fi
                 fi
 
-                logme debug "main() - tag:install - version mismatch, installed=$version_installed base=$version_apk_storage_base"
-                logme error "main() - tag:install - cannot proceed with bind mode due to installed apk does not match with base apk"
+                logme debug "init_main() - tag:install - version mismatch, installed=$version_installed base=$version_apk_storage_base"
+                logme error "init_main() - tag:install - cannot proceed with bind mode due to installed apk does not match with base apk"
                 clean_exit 1
             else              
-                logme error "main() - tag:install - failed, missing storage base.apk."
+                logme error "init_main() - tag:install - failed, missing storage base.apk."
                 echo "install tag: failed missing base.apk or original.apk" > "$path_dir_apps_storage/$PROC/install_failed.txt"
             fi
         }
 
         # check force tag file
         [ -f "$path_file_tag_force" ] && {
-            logme debug "main() - tag:force_mount"
+            logme debug "init_main() - tag:force_mount"
             # remove tag
             rm -f "$path_file_tag_force"
 
@@ -490,28 +490,28 @@ init_main() {
                 bind_me || clean_exit 1
                 clean_exit 0
             else
-                logme debug "main() - tag:force_mount - failed, missing module base.apk or original.apk"
+                logme debug "init_main() - tag:force_mount - failed, missing module base.apk or original.apk"
                 echo "force tag: failed missing base.apk or original.apk" > "$path_dir_apps_storage/$PROC/force_mount_failed.txt"
             fi
         }
 
         # check skip tag file
         [ -f "$path_file_tag_skip" ] && {
-            logme debug "main() - tag:skip"
-            logme debug "main() - tag:skip - skipping app.."
+            logme debug "init_main() - tag:skip"
+            logme debug "init_main() - tag:skip - skipping app.."
             clean_exit 0
         }
 
         # check remvoe tag file
         [ -f "$path_file_tag_remove" ] && {
-            logme debug "main() - tag:remove"
+            logme debug "init_main() - tag:remove"
             # remove tag
             rm -f "$path_file_tag_remove"
 
             # unmount remnants
-            logme debug "main() - tag:remove - checking remnants.."
+            logme debug "init_main() - tag:remove - checking remnants.."
              mount | grep "$PROC" | cut -d ' ' -f 3 | while IFS= read -r base_apk || [ -n "$base_apk" ]; do
-                logme debug "main() - tag:remove - unmounting: $base_apk"
+                logme debug "init_main() - tag:remove - unmounting: $base_apk"
                 umount -l "$base_apk"
             done
             
@@ -526,7 +526,7 @@ init_main() {
         [ -f "$path_file_tag_mirror" ] && [ ! -f "$path_file_tag_global_mirror" ] && {
             # mirror app level
             # mirror the package_name dir to internal directory
-            logme debug "main() - tag:mirror_app_level"
+            logme debug "init_main() - tag:mirror_app_level"
             rm -f "$path_file_tag_mirror"
             cp -rf "${path_dir_apps_module:?}/$PROC" "$path_dir_apps_storage"
         }
@@ -535,7 +535,7 @@ init_main() {
         [ -f "$path_file_tag_global_mirror" ] && {
             # mirror global
             # mirror the apps dir to root internal directory
-            logme debug "main() - tag:mirror_global"
+            logme debug "init_main() - tag:mirror_global"
             rm -f "$path_file_tag_global_mirror"
             cp -rf "$path_dir_apps_module" "$path_dir_storage"
         }
@@ -543,7 +543,7 @@ init_main() {
 
     # check if disable tag is present in module
     [ -f "$path_dir_apps_module/$PROC/disable" ] && {
-        logme stats "main() - disable tag present in module. skipping.."
+        logme stats "init_main() - disable tag present in module. skipping.."
         clean_exit 1
     }
     # proceed with normal checks
