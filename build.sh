@@ -87,7 +87,7 @@ logme stats main "branch=$current_branch"
 
 # disable building unless we are on bleeding
 [ ! "$current_branch" = "bleeding" ] && {
-    logme error main "I cannot bluild here @$current_branch. Please switch to Bleeding Branch"
+    logme error main "I cannot bluild here @$current_branch. Please switch to bleeding Branch"
     exit 1
 }
 
