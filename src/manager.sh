@@ -2,19 +2,30 @@
 # shellcheck shell=bash
 # shellcheck source=/dev/null
 
+# check module variables
+
 # magisk module directory
-MODDIR="${0%/*}"
-# MODNAME="${MODDIR##*/}"
+[[ ! -v MODDIR ]] &&\
+    MODDIR="${0%/*}"
+# magisk module name
+[[ ! -v MODNAME ]] &&\
+    MODNAME="${MODDIR##*/}"
 
 # magisk temporary directory
-MAGISKTMP=$(magisk --path) || MAGISKTMP=/sbin
+[[ ! -v MAGISKTMP ]] &&\
+    MAGISKTMP=$(magisk --path) || MAGISKTMP=/sbin
 
-# magisk Busybox & module local binaries
+
+# add magisk busybox & module binaries
 PATH="$MODDIR/bin:$MAGISKTMP/.magisk/busybox:$PATH"
 
 # no auto restart
 noRestart=false
+# no send notifications
+noNotifications=false
+# parse script parameters
 [ "$1" = "disableRestart" ] && noRestart=true
+[ "$2" = "disableNotificaitons" ] && noNotifications=true
 
 
 # sdcard directory
@@ -112,7 +123,10 @@ clean_exit() {
 
 # send notifications
 send_notification() {
-    su 2000 -c "cmd notification post -S bigtext -t 'DynMountX' 'Tag' '$(printf "$1")'"
+    # disable notifications
+    if [ "$noNotifications" != true ];then
+        su 2000 -c "cmd notification post -S bigtext -t 'DynMountX' 'Tag' '$(printf "$1")'"
+    fi
 }
 
 # exit if PROC is not defined
