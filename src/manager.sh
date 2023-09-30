@@ -2,13 +2,12 @@
 # shellcheck shell=bash
 # shellcheck source=/dev/null
 
-# magisk_module required
+# magisk module directory
 MODDIR="${0%/*}"
-MODNAME="${MODDIR##*/}"
+# MODNAME="${MODDIR##*/}"
 
+# magisk temporary directory
 MAGISKTMP=$(magisk --path) || MAGISKTMP=/sbin
-
-MIRROR="$MAGISKTMP/.magisk/mirror"
 
 # magisk Busybox & module local binaries
 PATH="$MODDIR/bin:$MAGISKTMP/.magisk/busybox:$PATH"
@@ -21,7 +20,7 @@ noRestart=false
 # -----------------------
 # apps folder
 path_dir_storage="/sdcard/DynamicMountManagerX"
-path_dir_apps_module="$MIRROR/data/adb/apps"
+path_dir_apps_module="/data/adb/apps"
 path_dir_apps_storage="$path_dir_storage/apps"
 # tag files
 path_file_tag_version_base="$path_dir_apps_module/$PROC/version_base"
@@ -100,11 +99,7 @@ send_notification() {
     logme error "we are expecting PROC but it is not defined. skipping this process.."
     clean_exit 1
 }
-# check if mirror data is accessable
-[ ! -d "$MIRROR/data" ] && {
-    logme error "magisk mirror mount point is not accessable. skipping $PROC.."
-    clean_exit 1
-}
+
 # cleanup
 [ -f "$path_file_tag_mounted" ] && {
     logme stats "detected restart tag file. skipping $PROC.."
