@@ -1,4 +1,9 @@
 # Dynamic Mount ~ Changelog
+## v1.3.5 
+- ea922ac [core]          
+    - fix bug causing logs to not output (nivranaitsirhc)  
+- 38184b4 [core]          
+    - wait until /data/app is available in service.sh (nivranaitsirhc)    
 ## v1.3.4 
 - 3d51af9 [core]          
     - do not use magisk mirror (nivranaitsirhc)  
