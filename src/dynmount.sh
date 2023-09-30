@@ -3,10 +3,12 @@
 # shellcheck source=/dev/null
 
 # magisk module directory
-export MODDIR="${0%/*}"
+MODDIR="${0%/*}"
 # magisk module name
-export MODNAME="${MODDIR##*/}"
+MODNAME="${MODDIR##*/}"
 MAGISKTMP=$(magisk --path) || MAGISKTMP=/sbin
+export MODDIR
+export MODNAME
 export MAGISKTMP
 
 # magisk busybox & module local binaries
@@ -14,11 +16,11 @@ PATH="$MODDIR/bin:$MAGISKTMP/.magisk/busybox:$PATH"
 
 
 # API_VERSION = 1
-export STAGE="$1"  # prepareEnterMntNs or EnterMntNs
-export PID="$2"    # PID of app process
-export UID="$3"    # UID of app process
-export PROC="$4"   # Process name. Example: com.google.android.gms.unstable
-export USERID="$5" # USER ID of app
+STAGE="$1"  # prepareEnterMntNs or EnterMntNs
+PID="$2"    # PID of app process
+UID="$3"    # UID of app process
+PROC="$4"   # Process name. Example: com.google.android.gms.unstable
+USERID="$5" # USER ID of app
 # API_VERSION = 2
 # Enable ash standalone
 # Enviroment variables: MAGISKTMP, API_VERSION
@@ -31,7 +33,11 @@ export USERID="$5" # USER ID of app
 # KSU_ON_GRANTED - true if process is granted su access
 # For Magisk, please use magisk command, example: MAGISKTMP="$(magisk --path)"
 
-
+export STAGE
+export PID
+export UID
+export PROC
+export USERID
 
 
 # config-static_variables 
