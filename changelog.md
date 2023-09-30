@@ -1,4 +1,19 @@
 # Dynamic Mount ~ Changelog
+## v1.3.4 
+- 3d51af9 [core]          
+    - do not use magisk mirror (nivranaitsirhc)  
+- ef68663 [core]          
+    - properly export var from dynmount.sh (nivranaitsirhc)  
+- 4671b39 [core]          
+    - re-work logging. debug logging will be included in releaseversion from now on. (nivranaitsirhc)  
+- c35915e [core]          
+    - re-work service.sh (nivranaitsirhc)  
+- 77e2b40 [core]          
+    - re-work tag parsing. merge bind_me and install_me. improve re-install handling. (nivranaitsirhc)  
+- c325fdc [core]          
+    - reduce bootscript count to 2 instead of 10 (nivranaitsirhc)  
+- 550b1b7 [core]          
+    - respect module variables (nivranaitsirhc)    
 ## v1.3.2 
 - bf41820 [core]          
     - refactor tag checks, try to copy installed original.apk (nivranaitsirhc)  

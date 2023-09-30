@@ -1,4 +1,19 @@
 # Dynamic Mount ~ Changelog
+## v1.3.4 
+- c35915e [core]          
+    - re-work service.sh (nivranaitsirhc)  
+- 550b1b7 [core]          
+    - respect module variables (nivranaitsirhc)  
+- ef68663 [core]          
+    - properly export var from dynmount.sh (nivranaitsirhc)  
+- 77e2b40 [core]          
+    - re-work tag parsing. merge bind_me and install_me. improve re-install handling. (nivranaitsirhc)  
+- 4671b39 [core]          
+    - re-work logging. debug logging will be included in releaseversion from now on. (nivranaitsirhc)  
+- 3d51af9 [core]          
+    - do not use magisk mirror (nivranaitsirhc)  
+- c325fdc [core]          
+    - reduce bootscript count to 2 instead of 10 (nivranaitsirhc)    
 ## v1.3.2 
 - d85a0f7 [fix]           
     - update correct log function tag (nivranaitsirhc)  
