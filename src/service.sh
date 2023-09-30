@@ -5,8 +5,8 @@
 # Wait until boot is completed
 until [ "$(getprop sys.boot_completed)" = 1 ];do sleep 1;done
 
-# Wait another 10 seconds
-sleep 10
+# Wait until /data is available
+until [ -d "/data/app" ]; do sleep 1;done
 
 # magisk module variables
 MODDIR="${0%/*}"
@@ -108,7 +108,7 @@ ls "/data/adb/apps" | while read -r PROC; do
 
         # verify mountpoint
         if mount | grep -q "$PROC";then
-            printf "$PROC\n" >> "$mountedAppList"
+            printf "\n$PROC" >> "$mountedAppList"
         fi
     else
         logme stats "loop(): skipping $PROC, disable tag found"

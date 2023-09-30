@@ -425,7 +425,7 @@ init_main() {
 
 
     # check the tag file "enable" in internal storage
-    { [ -d "$path_dir_storage" ] && [ -f "$path_dir_storage/enable" ]; } && {
+    if [ -d "$path_dir_storage" ] && [ -f "$path_dir_storage/enable" ];then
         logme debug "init_main() - processing tags."
 
         # create path for the current package name in module & internal storage
@@ -618,7 +618,7 @@ init_main() {
             fi
         }
 
-    }
+    fi
 
     # (non-blocking) process global tag - "mirror"
     [ -f "$path_file_tag_global_mirror" ] && {
