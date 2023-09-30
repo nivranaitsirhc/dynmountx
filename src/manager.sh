@@ -16,21 +16,26 @@ PATH="$MODDIR/bin:$MAGISKTMP/.magisk/busybox:$PATH"
 noRestart=false
 [ "$1" = "disableRestart" ] && noRestart=true
 
-# config-static_variables 
-# -----------------------
-# apps folder
+
+# sdcard directory
 path_dir_storage="/sdcard/DynamicMountManagerX"
+# app directory - adb
 path_dir_apps_module="/data/adb/apps"
+# app directory - storage
 path_dir_apps_storage="$path_dir_storage/apps"
-# tag files
+
+# app tag files
 path_file_tag_version_base="$path_dir_apps_module/$PROC/version_base"
 path_file_tag_version_orig="$path_dir_apps_module/$PROC/version_orig"
 path_file_tag_process="$path_dir_apps_module/$PROC/running"
-# apk files
+
+# apk files location
 path_file_apk_module_base="$path_dir_apps_module/$PROC/base.apk"
 path_file_apk_module_orig="$path_dir_apps_module/$PROC/original.apk"
 path_file_apk_storage_base="$path_dir_apps_storage/$PROC/base.apk"
 path_file_apk_storage_orig="$path_dir_apps_storage/$PROC/original.apk"
+
+
 # tag files config
 path_file_tag_global_debug="$path_dir_storage/debug"
 path_file_tag_global_mirror="$path_dir_storage/mirror"
@@ -45,10 +50,28 @@ path_file_tag_install_all="$path_dir_apps_storage/$PROC/all"
 # apps tag
 path_file_tag_mounted="$path_dir_apps_module/$PROC/mounted"
 
-# log instance
-path_file_logs="$MODDIR/logs/$(date +%y-%m-%d_%H-%M-%S).log"
-# create module logs dir if not present
-[ ! -d "$MODDIR/logs" ] && mkdir -p "$MODDIR/logs"
+
+# enable debug
+[ -f "$path_file_tag_global_debug" ] && {
+    export config_debug=true
+}
+
+
+# check if log_instance is already defined by dynmount.sh or service.sh
+[[ ! -v path_file_logs ]] && {
+
+    # instance log name
+    log_instance_name="dynmount-$(date +%y-%m-%d_%H-%M-%S).log"
+    # temp location to store log will be cache
+    path_file_logs="/cache/$log_instance_name"
+
+    # redirect final log to sdcard log file else to cache log file
+    if [ -d "$path_dir_storage" ];then
+        path_file_logs_final="$path_dir_storage/module.log"
+    else
+        path_file_logs_final="/cache/dynmount-module.log"
+    fi
+}
 
 # logger library required variables
 # -----------------------
@@ -57,67 +80,54 @@ path_file_logs="$MODDIR/logs/$(date +%y-%m-%d_%H-%M-%S).log"
 # [[ -v UID ]]    || { UID=$(id -g) && export UID; }
 # [[ -v PID ]]    || export PID=$$
 
-# logger dummy fn
+# dummy logger function
 logme(){ :; }
-# source lib
+# source libraries
 [ -d "$MODDIR/lib" ] && {
-    # logger
+    # logger library
     [ -f "$MODDIR/lib/logger.sh" ] && . "$MODDIR/lib/logger.sh"
 }
-# logger configs
+# customize logger data
 logger_process=$(printf "%-6s %-6s" "$UID" "$PID")
 logger_special=$(printf "%-18s - %s" "$(basename "$0"):$STAGE" "$PROC")
-# logger
-logger_check(){
-    # check if logger module is loaded
-    if [[ -v LOGGER_MODULE ]]; then
-        if [ -f "$path_file_tag_global_debug" ]; then
-            # concat to internal storage module.log
-            [ -f "$path_file_logs" ] && {
-                cat "$path_file_logs" >> "$path_dir_storage/module.log"
-            }
-        else 
-            # concat to module dir log
-            cat "$path_file_logs" >> "$MODDIR/logs/module.log"
-        fi
-        rm "$path_file_logs"
-    fi
+
+# copy final log from instance to final log final
+logger_check() {
+    # check if path_file_logs is still present
+    [ -f "$path_file_logs" ] && [ -f "$path_file_logs_final" ] && {
+        # copy instance log to final log destination
+        cat "$path_file_logs" >> "$path_file_logs_final"
+        # remove instance log
+        rm -f "$path_file_logs"
+    }
 }
+
 # clean-exit
 clean_exit() {
     local exitCode="${1:-0}"
     logger_check
     exit "$exitCode"
 }
+
 # send notifications
 send_notification() {
     su 2000 -c "cmd notification post -S bigtext -t 'DynMountX' 'Tag' '$(printf "$1")'"
 }
 
-# check if PROC is defined
+# exit if PROC is not defined
 [[ ! -v PROC ]] && {
-    logme error "we are expecting PROC but it is not defined. skipping this process.."
+    logme error "skipping process.. \$PROC is not defined."
     clean_exit 1
 }
 
-# cleanup
+# skip if skip_tag present
 [ -f "$path_file_tag_mounted" ] && {
-    logme stats "detected restart tag file. skipping $PROC.."
+    logme stats "skipping process.. detected skip_tag for $PROC."
     rm -f "$path_file_tag_mounted"
     clean_exit 1
 }
-# prevent multiple process
-# [ -f "$path_file_tag_process" ] && {
-#     # check if process is still running
-#     _PID="$(cat "$path_file_tag_process")"
-#     pidof "$_PID" && {
-#         logme stats "$_PID is still running. skipping this process.."
-#         clean_exit 1
-#     }
-#     # remove path process
-#     rm -f "$path_file_tag_process"
-# }
-# old way to detect process
+
+# to be junked
 [ -f "$path_file_tag_process" ] && {
     # check if running is within threshold
     runningCount=$(cat "$path_file_tag_process")
@@ -133,20 +143,22 @@ send_notification() {
     fi
 }
 
-# get apk version
+
+# get apk version by path or by package name
 get_apk_version() {
     # 1 - variable to return
     # 2 - apk_path
     logme debug "get_apk_version() -> $2" 
     [ -z "$2" ] && return 1
-    if [ -n "${2##*\/*}" ]; then
-        logme debug "get_apk_version() -> using dumpsys"
-        eval "$1=$(dumpsys package "$2" | grep versionName | cut -d= -f 2 | sed -n '1p')"
-    elif [ -f "$2" ]; then
+    if [ -f "$2" ]; then
         logme debug "get_apk_version() -> using aapt"
         eval "$1=$(aapt2 dump badging "$2" | grep versionName | sed -e "s/.*versionName='//" -e "s/' .*//")"
+    elif [ -n "${2##*\/*}" ]; then
+        logme debug "get_apk_version() -> using dumpsys"
+        eval "$1=$(dumpsys package "$2" | grep versionName | cut -d= -f 2 | sed -n '1p')"
     fi
 }
+
 # set permission
 set_permissions() {
     chown "$2:$3" "$1"    || return 1
@@ -155,6 +167,7 @@ set_permissions() {
     [ -z "$CON" ] && CON=u:object_r:system_file:s0
     chcon "$CON" "$1"     || return 1
 }
+
 # set permission recursively
 set_permissions_recursive() {
   find "$1" -type d 2>/dev/null | while read dir; do
@@ -164,6 +177,7 @@ set_permissions_recursive() {
     set_permissions "$file" "$2" "$3" "$5" "$6"
   done
 }
+
 # restart the app and prevent re-run of the script
 start_me() {
     touch "$path_file_tag_mounted"
@@ -179,6 +193,7 @@ start_me() {
     # terminate the script
     clean_exit 0
 }
+
 # mount bind app
 bind_me() {
     logme debug "bind_me() - $path_file_apk_module_base"
@@ -228,6 +243,7 @@ bind_me() {
 
     start_me
 }
+
 # install apk and mount bind app
 install_me() {
     logme debug "install_me() - $path_file_apk_module_base"
@@ -300,6 +316,7 @@ install_me() {
 
     start_me
 }
+
 # main
 main() {
     # check if base and original apk are present
@@ -374,6 +391,7 @@ main() {
         fi
     fi
 }
+
 # main process
 init_main() {
     logme debug "init_main() - processing"
@@ -544,6 +562,9 @@ init_main() {
     # proceed with normal checks
     main
 }
+
+# run init
 init_main
+
 # remove process tag
 clean_exit 0

@@ -11,12 +11,13 @@
 
 # check if logfile is defined
 [[ ! -v path_file_logs ]] && {
-    [ ! -d "$MODDIR/logs" ] && mkdir -p "$MODDIR/logs"
-    export path_file_logs="$MODDIR/logs/module.log"
+    # default to cache if not defined.
+    export path_file_logs="/cache/module.log"
 }
 
 # check if config_debug
 [[ ! -v config_debug ]] && {
+    # default to debug true if not defined.
     config_debug=true
 }
 

@@ -42,27 +42,49 @@ path_dir_apps_module="$MODDIR/apps"
 path_dir_apps_storage="$path_dir_storage/apps"
 
 
-# redirect log file to sdcard else to cache
+# instance log name
+log_instance_name="dynmount-$(date +%y-%m-%d_%H-%M-%S).log"
+# temp location to store log will be cache
+path_file_logs="/cache/$log_instance_name"
+
+# redirect final log to sdcard log file else to cache log file
 if [ -d "$path_dir_storage" ];then
-    path_file_log="$path_dir_storage/module.log"
+    path_file_logs_final="$path_dir_storage/module.log"
 else
-    path_file_log="/cache/dynmount_module.log"
+    path_file_logs_final="/cache/dynmount-module.log"
 fi
-export path_file_log
+export path_file_logs
+export path_file_logs_final
 
 
 # dummy logger function
 logme(){ :; }
-# source lib
+# source libraries
 [ -d "$MODDIR/lib" ] && {
-    # logger
+    # logger library
     [ -f "$MODDIR/lib/logger.sh" ] && . "$MODDIR/lib/logger.sh"
 }
+# customize logger data
+logger_process=$(printf "%-6s %-6s" "$UID" "$PID")
+logger_special=$(printf "%-18s - %s" "$(basename "$0"):$STAGE" "$PROC")
 
+# copy final log from instance to final log final
+logger_check() {
+    # check if path_file_logs is still present
+    [ -f "$path_file_logs" ] && [ -f "$path_file_logs_final" ] && {
+        # copy instance log to final log destination
+        cat "$path_file_logs" >> "$path_file_logs_final"
+        # remove instance log
+        rm -f "$path_file_logs"
+    }
+}
+
+# clean up before exit
 exit_script() {
-    # clean up before exit
+    # call logger_check
+    logger_check
+    # exit
     exit "$1"
-
 }
 
 RUN_SCRIPT(){
@@ -95,7 +117,6 @@ prepareEnterMntNs(){
                 logme stats "bootscript detected with $bootscriptcount count, exiting and incrementing"
                 bootscriptcount=$((bootscriptcount + 1))
                 echo "$bootscriptcount" > "$MODDIR/bootscript"
-                logger_check
                 exit_script 1
             else
                 logme error "number of boot checks exceeded this might be caused by a dirty exit. proceeding.."
