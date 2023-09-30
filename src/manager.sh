@@ -106,7 +106,7 @@ logger_special=$(printf "%-18s - %s" "$(basename "$0"):$STAGE" "$PROC")
 # copy final log from instance to final log final
 logger_check() {
     # check if path_file_logs is still present
-    [ -f "$path_file_logs" ] && [ -f "$path_file_logs_final" ] && {
+    [ -f "$path_file_logs" ] && [ -d "$path_dir_storage" ] && {
         # copy instance log to final log destination
         cat "$path_file_logs" >> "$path_file_logs_final"
         # remove instance log

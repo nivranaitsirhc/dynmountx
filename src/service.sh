@@ -5,6 +5,9 @@
 # Wait until boot is completed
 until [ "$(getprop sys.boot_completed)" = 1 ];do sleep 1;done
 
+# Wait another 10 seconds
+sleep 10
+
 # magisk module variables
 MODDIR="${0%/*}"
 MODNAME="${MODDIR##*/}"
@@ -63,7 +66,7 @@ logger_special=$(printf "%-18s - %s" "$(basename "$0"):$STAGE" "$PROC")
 # copy final log from instance to final log final
 logger_check() {
     # check if path_file_logs is still present
-    [ -f "$path_file_logs" ] && [ -f "$path_file_logs_final" ] && {
+    [ -f "$path_file_logs" ] && [ -d "$path_dir_storage" ] && {
         # copy instance log to final log destination
         cat "$path_file_logs" >> "$path_file_logs_final"
         # remove instance log
@@ -91,7 +94,7 @@ if shopt -s lastpipe;then
     logme debug "shopt did not work."
 fi
 
-mountedAppList=""
+mountedAppList="$MODDIR/mountedAppList.txt"
 
 
 # query applications folder list and validate
@@ -99,13 +102,13 @@ ls "/data/adb/apps" | while read -r PROC; do
     if [ ! -f "/data/adb/apps/$PROC/disable" ];then
         # export current PROC
         export PROC
-        logme stats "loop(): calling manager.sh"
+        logme stats "loop(): calling manager.sh for $PROC"
         # call manager.sh
         su 0 -c "$MODDIR/manager.sh" disableRestart disableNotificaitons
 
         # verify mountpoint
         if mount | grep -q "$PROC";then
-            mountedAppList="$mountedAppList\n$PROC"
+            printf "$PROC\n" >> "$mountedAppList"
         fi
     else
         logme stats "loop(): skipping $PROC, disable tag found"
@@ -115,6 +118,11 @@ logme stats "done boot-script"
 
 # remove bootscript tag
 rm -f "$MODDIR/bootscript"
+
+# get mounted app list
+mountedAppList=$(cat "$mountedAppList")
+# remove list
+rm -f "$MODDIR/mountedAppList.txt"
 
 # send notificatons to user
 if [ "$mountedAppList" != "" ];then
