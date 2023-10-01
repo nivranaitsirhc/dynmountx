@@ -3,10 +3,10 @@
 # shellcheck source=/dev/null
 
 # Wait until boot is completed
-until [ "$(getprop sys.boot_completed)" = 1 ];do sleep 1;done
+until [ "$(getprop sys.boot_completed)" = 1 ]; do sleep 1;done
 
-# Wait until /data is available
-until [ -d "/data/app" ]; do sleep 1;done
+# Wait until /sdcard is mounted is available
+until [ -d "/sdcard/DynamicMountManagerX" ]; do sleep 1;done
 
 # magisk module variables
 MODDIR="${0%/*}"
@@ -77,15 +77,6 @@ logger_check() {
 # send notifications
 send_notification() {
     su 2000 -c "cmd notification post -S bigtext -t 'DynMountX' 'Tag' '$(printf "$1")'"
-}
-
-
-
-# query application directory
-[ ! -d "/data/adb/apps" ] && {
-    logme error "exiting.. missing applications at /data/adb/apps"
-    logger_check
-    return 1
 }
 
 
