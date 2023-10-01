@@ -1,4 +1,9 @@
 # Dynamic Mount ~ Changelog
+## v1.3.6 
+- 4d6c499 [core]          
+    - update service.sh to handle log more properly (nivranaitsirhc)  
+- 229e4b6 [core]          
+    - service.sh watch until sdcard is mounted. remove /data/apps watch (nivranaitsirhc)    
 ## v1.3.5 
 - 38184b4 [core]          
     - wait until /data/app is available in service.sh (nivranaitsirhc)  
