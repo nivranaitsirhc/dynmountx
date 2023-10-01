@@ -5,7 +5,7 @@
 # Wait until boot is completed
 until [ "$(getprop sys.boot_completed)" = 1 ]; do sleep 1;done
 
-# Wait until /sdcard is mounted is available
+# Wait until /sdcard is mounted and available
 until [ -d "/sdcard/DynamicMountManagerX" ]; do sleep 1;done
 
 # magisk module variables
@@ -22,10 +22,10 @@ echo 0 > "$MODDIR/bootscript"
 
 # manager.sh required variables
 # -----------------------
-[[ -v STAGE ]]  || STAGE=boot-service
-# [[ -v PROC ]]   || PROC=magisk
-[[ -v UID ]]    || UID=$(id -g)
-[[ -v PID ]]    || PID=$$
+[[ ! -v STAGE ]]  && STAGE=boot-service
+# [[ -v PROC ]]   && PROC=magisk
+[[ ! -v UID ]]    && UID=$(id -g)
+[[ ! -v PID ]]    && PID=$$
 
 export STAGE
 export UID
@@ -61,7 +61,7 @@ logme(){ :; }
 }
 # customize logger data
 logger_process=$(printf "%-6s %-6s" "$UID" "$PID")
-logger_special=$(printf "%-18s - %s" "$(basename "$0"):$STAGE" "$PROC")
+logger_special=$(printf "%-18s - %s" "service.sh:boot-service" "$PROC")
 
 # copy final log from instance to final log final
 logger_check() {
@@ -85,7 +85,15 @@ if shopt -s lastpipe;then
     logme debug "shopt did not work."
 fi
 
+# mkdir
 mountedAppList="$MODDIR/mountedAppList.txt"
+
+# init mounted mountedAppList
+[ -f "$mountedAppList" ] && {
+    # remove remant list file 
+    rm -f "$mountedAppList"
+}
+touch "$mountedAppList"
 
 
 # query applications folder list and validate
@@ -93,6 +101,7 @@ ls "/data/adb/apps" | while read -r PROC; do
     if [ ! -f "/data/adb/apps/$PROC/disable" ];then
         # export current PROC
         export PROC
+
         logme stats "loop(): calling manager.sh for $PROC"
         # call manager.sh
         su 0 -c "$MODDIR/manager.sh" disableRestart disableNotificaitons

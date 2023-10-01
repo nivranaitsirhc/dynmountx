@@ -72,7 +72,7 @@ logme(){ :; }
 }
 # customize logger data
 logger_process=$(printf "%-6s %-6s" "$UID" "$PID")
-logger_special=$(printf "%-18s - %s" "$(basename "$0"):$STAGE" "$PROC")
+logger_special=$(printf "%-18s - %s" "dynamount.sh:$STAGE" "$PROC")
 
 # copy final log from instance to final log final
 logger_check() {

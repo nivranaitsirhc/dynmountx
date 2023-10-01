@@ -87,10 +87,10 @@ path_file_tag_mounted="$path_dir_apps_module/$PROC/mounted"
 
 # logger library required variables
 # -----------------------
-# [[ -v STAGE ]]  || export STAGE=boot-service
-# [[ -v PROC ]]   || export PROC=magisk
-# [[ -v UID ]]    || { UID=$(id -g) && export UID; }
-# [[ -v PID ]]    || export PID=$$
+# [[ ! -v STAGE ]]  && export STAGE=boot-service
+# [[ ! -v PROC ]]   && export PROC=magisk
+# [[ ! -v UID ]]    && { UID=$(id -g) && export UID; }
+# [[ ! -v PID ]]    && export PID=$$
 
 # dummy logger function
 logme(){ :; }
