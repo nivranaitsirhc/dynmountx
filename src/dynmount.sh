@@ -120,12 +120,12 @@ prepareEnterMntNs(){
         [ -f "$MODDIR/bootscript" ] && {
             bootscriptcount=$(cat "$MODDIR/bootscript")
             if [ "$bootscriptcount" -lt 3 ];then
-                logme stats "bootscript detected with $bootscriptcount count, exiting and incrementing"
+                logme stats "bootscript detected with $bootscriptcount count, incrementing count and exiting.."
                 bootscriptcount=$((bootscriptcount + 1))
                 echo "$bootscriptcount" > "$MODDIR/bootscript"
                 exit_script 1
             else
-                logme error "number of boot checks exceeded this might be caused by a dirty exit. proceeding.."
+                logme infor "number of boot checks exceeded this might be caused by a dirty exit. proceeding.."
                 rm -f "$MODDIR/bootscript"
             fi
         }
