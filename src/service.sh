@@ -8,10 +8,18 @@ until [ "$(getprop sys.boot_completed)" = 1 ]; do sleep 1;done
 # Wait until /sdcard is mounted and available
 until [ -d "/sdcard/DynamicMountManagerX" ]; do sleep 1;done
 
-# magisk module variables
-MODDIR="${0%/*}"
-MODNAME="${MODDIR##*/}"
-MAGISKTMP=$(magisk --path) || MAGISKTMP=/sbin
+# check MODDIR definition
+[[ ! -v MODDIR ]] && {
+    MODDIR="${0%/*}"
+}
+# check MODNAME definition
+[[ ! -v MODNAME ]] && [[ ! -v MODDIR ]] && {
+    MODNAME="${MODDIR##*/}"
+}
+# check magisk temporary directory
+[[ ! -v MAGISKTMP ]] && {
+    MAGISKTMP=$(magisk --path) || MAGISKTMP=/sbin
+}
 
 export MODDIR
 export MODNAME

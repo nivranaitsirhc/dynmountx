@@ -4,17 +4,20 @@
 
 # check module variables
 
-# magisk module directory
-[[ ! -v MODDIR ]] &&\
+# check MODDIR definition
+[[ ! -v MODDIR ]] && {
     MODDIR="${0%/*}"
-# magisk module name
-[[ ! -v MODNAME ]] &&\
+}
+
+# check MODNAME definition
+[[ ! -v MODNAME ]] && [[ ! -v MODDIR ]] && {
     MODNAME="${MODDIR##*/}"
+}
 
-# magisk temporary directory
-[[ ! -v MAGISKTMP ]] &&\
+# check magisk temporary directory
+[[ ! -v MAGISKTMP ]] && {
     MAGISKTMP=$(magisk --path) || MAGISKTMP=/sbin
-
+}
 
 # add magisk busybox & module binaries
 PATH="$MODDIR/bin:$MAGISKTMP/.magisk/busybox:$PATH"

@@ -3,9 +3,13 @@
 # * this file is meant to be sourced only
 # * moudule for logging
 
-# check if moddir is defined
+# check MODDIR definition
 [[ ! -v MODDIR ]] && {
     MODDIR="${0%/*}"
+}
+
+# check MODNAME definition
+[[ ! -v MODNAME ]] && [[ ! -v MODDIR ]] && {
     MODNAME="${MODDIR##*/}"
 }
 
