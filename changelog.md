@@ -1,4 +1,11 @@
 # Dynamic Mount ~ Changelog
+## v1.3.7 
+- f211d15 [core]          
+    - fix boot-script logger handling, disable notif on andoird less than 10 (nivranaitsirhc)  
+- 3ef56ca [core]          
+    - rework variable checks (nivranaitsirhc)  
+- 52e1bc5 [core]          
+    - update some log messages. (nivranaitsirhc)    
 ## v1.3.6 
 - 229e4b6 [core]          
     - service.sh watch until sdcard is mounted. remove /data/apps watch (nivranaitsirhc)  

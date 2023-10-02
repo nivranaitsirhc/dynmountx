@@ -1,4 +1,11 @@
 # Dynamic Mount ~ Changelog
+## v1.3.7 
+- 52e1bc5 [core]          
+    - update some log messages. (nivranaitsirhc)  
+- 3ef56ca [core]          
+    - rework variable checks (nivranaitsirhc)  
+- f211d15 [core]          
+    - fix boot-script logger handling, disable notif on andoird less than 10 (nivranaitsirhc)    
 ## v1.3.6 
 - 4d6c499 [core]          
     - update service.sh to handle log more properly (nivranaitsirhc)  
