@@ -122,11 +122,15 @@ clean_exit() {
 }
 
 # send notifications
+notif_int="$(getprop ro.build.version.release)"
 send_notification() {
-    # disable notifications
-    if [ "$noNotifications" != true ];then
-        su 2000 -c "cmd notification post -S bigtext -t 'DynMountX' 'Tag' '$(printf "$1")'"
-    fi
+    # disable notifications on android running older than android 10
+    [ "$notif_int" -ge 10 ] && {
+        # disable notifications
+        if [ "$noNotifications" != true ];then
+            su 2000 -c "cmd notification post -S bigtext -t 'DynMountX' 'Tag' '$(printf "$1")'"
+        fi
+    }
 }
 
 # exit if PROC is not defined

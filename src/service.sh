@@ -60,8 +60,12 @@ logme(){ :; }
     [ -f "$MODDIR/lib/logger.sh" ] && . "$MODDIR/lib/logger.sh"
 }
 # customize logger data
-logger_process=$(printf "%-6s %-6s" "$UID" "$PID")
-logger_special=$(printf "%-18s - %s" "service.sh:boot-service" "$PROC")
+logger_setup(){
+    logger_process=$(printf "%-6s %-6s" "$UID" "$PID")
+    logger_special=$(printf "%-18s - %s" "service.sh:boot-service" "init_process")
+}
+# init logger_setup
+logger_setup
 
 # copy final log from instance to final log final
 logger_check() {
@@ -75,15 +79,17 @@ logger_check() {
 }
 
 # send notifications
+notif_int="$(getprop ro.build.version.release)"
 send_notification() {
-    su 2000 -c "cmd notification post -S bigtext -t 'DynMountX' 'Tag' '$(printf "$1")'"
+    # disable notifications on android running older than android 10
+    [ "$notif_int" -ge 10 ] && {
+        # disable notifications
+        if [ "$noNotifications" != true ];then
+            su 2000 -c "cmd notification post -S bigtext -t 'DynMountX' 'Tag' '$(printf "$1")'"
+        fi
+    }
 }
 
-
-# SC2031
-if shopt -s lastpipe;then
-    logme debug "shopt did not work."
-fi
 
 # mkdir
 mountedAppList="$MODDIR/mountedAppList.txt"
@@ -97,7 +103,10 @@ touch "$mountedAppList"
 
 
 # query applications folder list and validate
-ls "/data/adb/apps" | while read -r PROC; do
+ while read -r PROC; do
+    # modify logger_special to accomodate the current $PROC
+    logger_special=$(printf "%-18s - %s" "service.sh:boot-service" "$PROC")
+
     if [ ! -f "/data/adb/apps/$PROC/disable" ];then
         # export current PROC
         export PROC
@@ -113,7 +122,13 @@ ls "/data/adb/apps" | while read -r PROC; do
     else
         logme stats "loop(): skipping $PROC, disable tag found"
     fi
-done
+
+done <<< "$(ls -1 /data/adb/apps)"
+
+# re-init logger_setup that was modified inside the while loop.
+logger_setup
+
+# notify
 logme stats "done boot-script"
 
 # remove bootscript tag
@@ -129,5 +144,5 @@ if [ "$mountedAppList" != "" ];then
     send_notification "Successfully Mounted$mountedAppList"
 fi
 
-# exit
+# exit clean-up
 logger_check
