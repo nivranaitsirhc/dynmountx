@@ -4,23 +4,23 @@
 # * moudule for logging
 
 # check MODDIR definition
-[[ ! -v MODDIR ]] && {
+[ -z ${MODDIR+x} ] && {
     MODDIR="${0%/*}"
 }
 
 # check MODNAME definition
-[[ ! -v MODNAME ]] && [[ ! -v MODDIR ]] && {
+[ -z ${MODNAME+x} ] && {
     MODNAME="${MODDIR##*/}"
 }
 
 # check if logfile is defined
-[[ ! -v path_file_logs ]] && {
+[ -z ${path_file_logs+x} ] && {
     # default to cache if not defined.
     export path_file_logs="/cache/module.log"
 }
 
 # check if config_debug
-[[ ! -v config_debug ]] && {
+[ -z ${config_debug+x} ] && {
     # default to debug true if not defined.
     config_debug=true
 }
@@ -39,16 +39,17 @@ logme() {
     # ------------------------------------
     # logger_config_print_terminal={false}
 
-    [[ ! -v logger_config_print_terminal ]] && logger_config_print_terminal=false
+    [ -n ${logger_config_print_terminal+x} ] && logger_config_print_terminal=false
 
     [ -n "$1" ] && [ -n "$2" ] && {
-        if [ "$1" != "debug" ] || [ "$config_debug" = true ];then
+        if { [ "$1" != "debug" ] || [ "$config_debug" = true ]; };then
             # check if logger global parameters are defined
-            if [[ -v logger_process ]] && [[ -v logger_special ]];then
+            if { [ -n ${logger_process+x} ] && [ -n ${logger_special+x} ]; };then
                 printf "%s %s %-6s : %s --> %s\n" "$(date)" "$logger_process" "$1" "$logger_special" "$2" >> "$path_file_logs"
                 [ "$logger_config_print_terminal" ] && \
                 printf "%s %s %-6s : %s --> %s\n" "$(date)" "$logger_process" "$1" "$logger_special" "$2"
             else 
+                printf "switched to default, $logger_process, $logger_special, are not available" >> "$path_file_logs"
                 printf "%s %-6s --> %s\n" "$(date)" "$1" "$2" >> "$path_file_logs"
                 [ "$logger_config_print_terminal" ] && \
                 printf "%s %-6s --> %s\n" "$(date)" "$1" "$2"
@@ -57,7 +58,7 @@ logme() {
     }
     [ -n "$1" ] && [ -z "$2" ] && {
         if [ "$1" != "debug" ] || [ "$config_debug" = true ];then
-            if [[ -v logger_process ]] && [[ -v logger_special ]];then
+            if { [ -n ${logger_process+x} ] && [ -n ${logger_special+x} ]; };then
                 printf "%s %s : %s --> %s\n" "$(date)" "$logger_process" "$logger_special" "$1" >> "$path_file_logs"
                 [ "$logger_config_print_terminal" ] && \
                 printf "%s %s : %s --> %s\n" "$(date)" "$logger_process" "$logger_special" "$1"

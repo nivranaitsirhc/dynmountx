@@ -5,17 +5,17 @@
 # check module variables
 
 # check MODDIR definition
-[[ ! -v MODDIR ]] && {
+[ -z ${MODDIR+x} ] && {
     MODDIR="${0%/*}"
 }
 
 # check MODNAME definition
-[[ ! -v MODNAME ]] && [[ ! -v MODDIR ]] && {
+[ -z ${MODNAME+x} ] && {
     MODNAME="${MODDIR##*/}"
 }
 
 # check magisk temporary directory
-[[ ! -v MAGISKTMP ]] && {
+[ -z ${MAGISKTMP+x} ] && {
     MAGISKTMP=$(magisk --path) || MAGISKTMP=/sbin
 }
 
@@ -27,8 +27,8 @@ noRestart=false
 # no send notifications
 noNotifications=false
 # parse script parameters
-[ "$1" = "disableRestart" ] && noRestart=true
-[ "$2" = "disableNotificaitons" ] && noNotifications=true
+[ "$1" = "disableRestart" ]        && noRestart=true
+[ "$2" = "disableNotificaitons" ]  && noNotifications=true
 
 
 # sdcard directory
@@ -65,15 +65,25 @@ path_file_tag_install_all="$path_dir_apps_storage/$PROC/all"
 path_file_tag_mounted="$path_dir_apps_module/$PROC/mounted"
 
 
-# enable debug
-[ -f "$path_file_tag_global_debug" ] && {
-    config_debug=true
+# check global debug variable if not set then set
+[ -z ${config_debug+x} ] && {
+    # check global tag file
+    if [ -f "$path_file_tag_global_debug" ]; then
+        # enable debug variable
+        config_debug=true
+    else
+        # disable debug variable
+        config_debug=false
+    fi
+    # export debug flag
     export config_debug
 }
 
 
-# check if log_instance is already defined by dynmount.sh or service.sh
-[[ ! -v path_file_logs ]] && {
+# check log_instance if already defined by dynmount.sh or service.sh
+[ -z ${path_file_logs+x} ] && {
+    # set standalone to true, handle logging cleanup
+    standaloneMode=true
 
     # instance log name
     log_instance_name="dynmount-$(date +%y-%m-%d_%H-%M-%S).log"
@@ -90,10 +100,10 @@ path_file_tag_mounted="$path_dir_apps_module/$PROC/mounted"
 
 # logger library required variables
 # -----------------------
-# [[ ! -v STAGE ]]  && export STAGE=boot-service
-# [[ ! -v PROC ]]   && export PROC=magisk
-# [[ ! -v UID ]]    && { UID=$(id -g) && export UID; }
-# [[ ! -v PID ]]    && export PID=$$
+# [ -z ${STAGE+x} ]  && STAGE=boot-service
+# [ -z ${PROC+x} ]   && PROC=magisk
+# [ -z ${UID+x} ]    && UID=$(id -g)
+# [ -z ${PID+x} ]    && PID=$$
 
 # dummy logger function
 logme(){ :; }
@@ -103,8 +113,8 @@ logme(){ :; }
     [ -f "$MODDIR/lib/logger.sh" ] && . "$MODDIR/lib/logger.sh"
 }
 # customize logger data
-logger_process=$(printf "%-6s %-6s" "$UID" "$PID")
-logger_special=$(printf "%-18s - %s" "$(basename "$0"):$STAGE" "$PROC")
+logger_process=$(printf "%6s %6s" "$UID" "$PID")
+logger_special=$(printf "%-30s - %s" "$(basename "$0"):$STAGE" "$PROC")
 
 # copy final log from instance to final log final
 logger_check() {
@@ -120,7 +130,11 @@ logger_check() {
 # clean-exit
 clean_exit() {
     local exitCode="${1:-0}"
+    
+    # logger clean-up
+    [ "$standaloneMode" = true ] &&\
     logger_check
+    
     exit "$exitCode"
 }
 
@@ -137,7 +151,7 @@ send_notification() {
 }
 
 # exit if PROC is not defined
-[[ ! -v PROC ]] && {
+[ -z ${PROC+x} ] && {
     logme error "skipping process.. \$PROC is not defined."
     clean_exit 1
 }
@@ -363,7 +377,7 @@ main() {
         printf %s "$version_apk_module_base" >  "$path_file_tag_version_base"
     fi
 
-    # query apk version - orig.apk
+    # query apk version - original.apk
     if { [ -f "$path_file_tag_version_orig" ] && \
         grep '[^[:space:]]' "$path_file_tag_version_orig"; }; then
         logme debug "main() - using version_orig file.."
@@ -378,18 +392,20 @@ main() {
     get_apk_version version_installed "$PROC"
     
     # display versions
-    logme debug "main() - listing versions:"
-    logme debug "main() - installed   - $version_installed"
-    logme debug "main() - module_base - $version_apk_module_base"
-    logme debug "main() - module_orig - $version_apk_module_orig"
+    logme infor "main() - listing versions:"
+    logme infor "main() - current installed -> :$version_installed"
+    logme infor "main() - module patched    -> :$version_apk_module_base"
+    logme infor "main() - module original   -> :$version_apk_module_orig"
 
     # base.apk does not match with installed
     if [ "$version_installed" != "$version_apk_module_base" ];then
         logme error "main() - version mismatch: installed=$version_installed, module=$version_apk_module_base"
+        logme infor "main() - current installed does not match with stored base.apk, try to downgrade or re-install the stored original apk."
         
-        # base.apk does not match with orig.apk - error quit.
+        # base.apk does not match with original.apk - error quit.
         if [ "$version_apk_module_base" != "$version_apk_module_orig" ]; then
             logme error "main() - version mismatch: base=$version_apk_module_base, original=$version_apk_module_orig"
+            logme infor "main() - the module base.apk and original.apk does not match. exiting.."
             # exit the script
             clean_exit 1
 
@@ -415,7 +431,7 @@ main() {
 
 # main process
 init_main() {
-    logme debug "init_main() - processing"
+    logme debug "init_main() - initializing.."
 
     # tag files check
     # 1.  "enable" tag file must be present in internal storage directory.
@@ -433,7 +449,7 @@ init_main() {
 
     # check the tag file "enable" in internal storage
     if [ -d "$path_dir_storage" ] && [ -f "$path_dir_storage/enable" ];then
-        logme debug "init_main() - processing tags."
+        logme stats "init_main() - internal storage enable tag detected, searching for application tags.."
 
         # create path for the current package name in module & internal storage
         [ ! -d "$path_dir_apps_module/$PROC" ]  &&\

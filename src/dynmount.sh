@@ -71,8 +71,12 @@ logme(){ :; }
     [ -f "$MODDIR/lib/logger.sh" ] && . "$MODDIR/lib/logger.sh"
 }
 # customize logger data
-logger_process=$(printf "%-6s %-6s" "$UID" "$PID")
-logger_special=$(printf "%-18s - %s" "dynamount.sh:$STAGE" "$PROC")
+logger_setup(){
+    logger_process=$(printf "%6s %6s" "$UID" "$PID")
+    logger_special=$(printf "%-30s - %s" "$(basename "$0"):$STAGE" "$PROC")
+}
+# init logger_setup for dynmount
+logger_setup
 
 # copy final log from instance to final log final
 logger_check() {
@@ -84,6 +88,19 @@ logger_check() {
         rm -f "$path_file_logs"
     }
 }
+
+# send notifications
+notif_int="$(getprop ro.build.version.release)"
+send_notification() {
+    # disable notifications on android running older than android 10
+    [ "$notif_int" -ge 10 ] && {
+        # disable notifications
+        if [ "$noNotifications" != true ];then
+            su 2000 -c "cmd notification post -S bigtext -t 'DynMountX' 'Tag' '$(printf "$1")'"
+        fi
+    }
+}
+
 
 # clean up before exit
 exit_script() {
@@ -131,11 +148,17 @@ prepareEnterMntNs(){
         }
         
         # run manger.sh with exported variables
-        logme stats "executing manager.sh.."
-        su 0 -mm -c "$MODDIR/manager.sh"
+        logme stats "running manager.sh..."
+        $MODDIR/manager.sh
+        logme infor "done dynamic-mount service!"
+        
+        #reset logger
+        logger_setup
+        
+        # exit the script
         exit_script 1
     fi
-
+    
     exit_script 1 # close script
 }
 EnterMntNs(){

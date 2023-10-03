@@ -9,15 +9,15 @@ until [ "$(getprop sys.boot_completed)" = 1 ]; do sleep 1;done
 until [ -d "/sdcard/DynamicMountManagerX" ]; do sleep 1;done
 
 # check MODDIR definition
-[[ ! -v MODDIR ]] && {
+[ -z ${MODDIR+x} ] && {
     MODDIR="${0%/*}"
 }
 # check MODNAME definition
-[[ ! -v MODNAME ]] && [[ ! -v MODDIR ]] && {
+[ -z ${MODNAME+x} ] && {
     MODNAME="${MODDIR##*/}"
 }
 # check magisk temporary directory
-[[ ! -v MAGISKTMP ]] && {
+[ -z ${MAGISKTMP+x} ] && {
     MAGISKTMP=$(magisk --path) || MAGISKTMP=/sbin
 }
 
@@ -30,10 +30,10 @@ echo 0 > "$MODDIR/bootscript"
 
 # manager.sh required variables
 # -----------------------
-[[ ! -v STAGE ]]  && STAGE=boot-service
-# [[ -v PROC ]]   && PROC=magisk
-[[ ! -v UID ]]    && UID=$(id -g)
-[[ ! -v PID ]]    && PID=$$
+[ -z ${STAGE+x} ]  && STAGE=boot-service
+# [ -n ${PROC+x} ]   && PROC=magisk
+[ -z ${UID+x} ]    && UID=$(id -g)
+[ -z ${PID+x} ]    && PID=$$
 
 export STAGE
 export UID
@@ -69,8 +69,8 @@ logme(){ :; }
 }
 # customize logger data
 logger_setup(){
-    logger_process=$(printf "%-6s %-6s" "$UID" "$PID")
-    logger_special=$(printf "%-18s - %s" "service.sh:boot-service" "init_process")
+    logger_process=$(printf "%6s %6s" "$UID" "$PID")
+    logger_special=$(printf "%-30s - %s" "service.sh:boot-service" "init_process")
 }
 # init logger_setup
 logger_setup
@@ -111,17 +111,15 @@ touch "$mountedAppList"
 
 
 # query applications folder list and validate
- while read -r PROC; do
-    # modify logger_special to accomodate the current $PROC
-    logger_special=$(printf "%-18s - %s" "service.sh:boot-service" "$PROC")
+ls -1 /data/adb/apps | while read -r PROC; do
+     # export current PROC
+     export PROC
 
     if [ ! -f "/data/adb/apps/$PROC/disable" ];then
-        # export current PROC
-        export PROC
 
         logme stats "loop(): calling manager.sh for $PROC"
         # call manager.sh
-        su 0 -c "$MODDIR/manager.sh" disableRestart disableNotificaitons
+        $MODDIR/manager.sh disableRestart disableNotificaitons
 
         # verify mountpoint
         if mount | grep -q "$PROC";then
@@ -131,13 +129,11 @@ touch "$mountedAppList"
         logme stats "loop(): skipping $PROC, disable tag found"
     fi
 
-done <<< "$(ls -1 /data/adb/apps)"
+done
 
 # re-init logger_setup that was modified inside the while loop.
 logger_setup
 
-# notify
-logme stats "done boot-script"
 
 # remove bootscript tag
 rm -f "$MODDIR/bootscript"
@@ -146,6 +142,9 @@ rm -f "$MODDIR/bootscript"
 mountedAppList=$(cat "$mountedAppList")
 # remove list
 rm -f "$MODDIR/mountedAppList.txt"
+
+# notify
+logme stats "done boot-service!"
 
 # send notificatons to user
 if [ "$mountedAppList" != "" ];then
