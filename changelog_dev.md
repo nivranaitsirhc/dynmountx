@@ -1,4 +1,7 @@
 # Dynamic Mount ~ Changelog
+## v1.3.8 
+- d71fc27 [core]          
+    - rework entire code base to be ash compliant (nivranaitsirhc)    
 ## v1.3.7 
 - 52e1bc5 [core]          
     - update some log messages. (nivranaitsirhc)  

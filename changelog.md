@@ -1,4 +1,7 @@
 # Dynamic Mount ~ Changelog
+## v1.3.8 
+- d71fc27 [core]          
+    - rework entire code base to be ash compliant (nivranaitsirhc)    
 ## v1.3.7 
 - f211d15 [core]          
     - fix boot-script logger handling, disable notif on andoird less than 10 (nivranaitsirhc)  
