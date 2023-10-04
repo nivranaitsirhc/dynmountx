@@ -41,7 +41,10 @@ path_dir_apps_storage="$path_dir_storage/apps"
 # app tag files
 path_file_tag_version_base="$path_dir_apps_module/$PROC/version_base"
 path_file_tag_version_orig="$path_dir_apps_module/$PROC/version_orig"
+
+# app running tag
 path_file_tag_process="$path_dir_apps_module/$PROC/running"
+remove_running=true
 
 # apk files location
 path_file_apk_module_base="$path_dir_apps_module/$PROC/base.apk"
@@ -133,6 +136,11 @@ logger_check() {
 clean_exit() {
     local exitCode="${1:-0}"
     
+    # default remove running tag
+    [ "$remove_running" = true ] && {
+        rm -f "$path_file_tag_process"
+    }
+
     # logger clean-up
     [ "$standaloneMode" = true ] &&\
     logger_check
@@ -147,6 +155,7 @@ send_notification() {
     [ "$notif_int" -ge 10 ] && {
         # disable notifications
         if [ "$noNotifications" != true ];then
+            # shellcheck disable=SC2059
             su 2000 -c "cmd notification post -S bigtext -t 'DynMountX' 'Tag' '$(printf "$1")'"
         fi
     }
@@ -160,26 +169,50 @@ send_notification() {
 
 # skip if skip_tag present
 [ -f "$path_file_tag_mounted" ] && {
-    logme stats "skipping process.. detected skip_tag for $PROC."
+    logme stats "skipping process.. detected \"skip\" tag for $PROC."
     rm -f "$path_file_tag_mounted"
     clean_exit 1
 }
 
-# to be junked
-[ -f "$path_file_tag_process" ] && {
-    # check if running is within threshold
+# prevent parallel execution for PROC
+if [ -f "$path_file_tag_process" ];then
+    logme debug "tag:running - detected running tag."
+    # get last count
     runningCount=$(cat "$path_file_tag_process")
-    if { [ -n "$runningCount" ] && [ "$runningCount" -ge "5" ]; }; then
-        logme debug "running tag: Reached the max allowed skip. removing tag and continuing.."
-        rm -f "$path_file_tag_process"
+    # check runningCount if is a valid number
+    re='^[0-9]+$'
+    # shellcheck disable=SC3010
+    if [[ $runningCount =~ $re ]]; then
+        # check if running is within threshold of 2
+        if [ "$runningCount" -gt "1" ]; then
+            logme debug "tag:running - reached the max allowed skip. proceeding.."
+        else
+            # update count
+            currentCount=$(("$runningCount" + 1))
+            echo "$currentCount" > "$path_file_tag_process"
+            logme debug "tag:running - current count is $currentCount"
+
+            logme infor "tag:running - another instance is currently mounting this $PROC. skipping..."
+
+            # stop the app
+            logme infor "tag:running - stoping $PROC.."
+            am force-stop "$PROC"
+
+            # do not remove tag
+            remove_running=false
+
+            # exit
+            clean_exit 0
+        fi
     else
-        currentCount=$(("$runningCount" + 1))
-        echo "$currentCount" > "$path_file_tag_process"
-        logme debug "running tag: current count is $currentCount"
-        logme stats "running tag: another instance is currently mounting this $PROC. skipping..."
-        clean_exit 1
+        logme debug "tag:running - running count is not a number: $runningCount, proceeding.."
+        # reset running tag
+        echo 0 > "$path_file_tag_process"
     fi
-}
+else
+    # create running tag
+    echo 0 > "$path_file_tag_process"
+fi
 
 
 # get apk version by path or by package name
@@ -187,7 +220,11 @@ get_apk_version() {
     # 1 - variable to return
     # 2 - apk_path
     logme debug "get_apk_version() -> $2" 
-    [ -z "$2" ] && return 1
+    [ -z "$2" ] && {
+        logme error "get_apk_version() - empty path or package name returning null."
+        eval "$1=\"\""
+        return 1
+    }
     if [ -f "$2" ]; then
         logme debug "get_apk_version() -> using aapt"
         eval "$1=$(aapt2 dump badging "$2" | grep versionName | sed -e "s/.*versionName='//" -e "s/' .*//")"
@@ -208,10 +245,10 @@ set_permissions() {
 
 # set permission recursively
 set_permissions_recursive() {
-  find "$1" -type d 2>/dev/null | while read dir; do
+  find "$1" -type d 2>/dev/null | while read -r dir; do
     set_permissions "$dir" "$2" "$3" "$4" "$6"
   done
-  find "$1" -type f -o -type l 2>/dev/null | while read file; do
+  find "$1" -type f -o -type l 2>/dev/null | while read -r file; do
     set_permissions "$file" "$2" "$3" "$5" "$6"
   done
 }
@@ -280,7 +317,10 @@ install_bind() {
         local log_install=""
         local log_install_1=""
         local log_uninstall_0=""
+
+        # shellcheck disable=SC2086
         log_install=$(pm install -r -d $user_install "$path_file_apk_module_orig" 2>&1)
+        # shellcheck disable=SC2181
         [ "$?" -ne "0" ] && {
             # check if due to version downgrade then uninstall and install
             if echo "$log_install" | grep "INSTALL_FAILED_VERSION_DOWNGRADE"; then
@@ -290,6 +330,8 @@ install_bind() {
                     logme debug "install_bind() - un-install failed with error: $log_uninstall_0"
                     clean_exit 1
                 }
+                
+                # shellcheck disable=SC2086
                 # try to re-install
                 log_install_1=$(pm install -r -d $user_install "$path_file_apk_module_orig" 2>&1)
                 [ "$?" -ne "0" ] && {
