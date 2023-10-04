@@ -449,7 +449,7 @@ init_main() {
 
     # check the tag file "enable" in internal storage
     if [ -d "$path_dir_storage" ] && [ -f "$path_dir_storage/enable" ];then
-        logme stats "init_main() - internal storage enable tag detected, searching for application tags.."
+        logme stats "init_main() - internal storage \"enable\" tag found, checking for tags.."
 
         # create path for the current package name in module & internal storage
         [ ! -d "$path_dir_apps_module/$PROC" ]  &&\

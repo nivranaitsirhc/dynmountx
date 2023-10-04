@@ -141,7 +141,7 @@ rm -f "$MODDIR/bootscript"
 # get mounted app list
 mountedAppList=$(cat "$mountedAppList")
 # remove list
-rm -f "$MODDIR/mountedAppList.txt"
+rm -f "$mountedAppList"
 
 # notify
 logme stats "done boot-service!"
