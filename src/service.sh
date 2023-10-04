@@ -1,5 +1,5 @@
-#!/system/bin/sh
-# shellcheck shell=bash
+#!/system/bin/ash
+# shellcheck shell=ash
 # shellcheck source=/dev/null
 
 # Wait until boot is completed
@@ -41,8 +41,8 @@ export PID
 
 
 path_dir_storage="/sdcard/DynamicMountManagerX"
-path_dir_apps_module="$MODDIR/apps"
-path_dir_apps_storage="$path_dir_storage/apps"
+# path_dir_apps_module="$MODDIR/apps"
+# path_dir_apps_storage="$path_dir_storage/apps"
 
 
 # instance log name
@@ -69,7 +69,9 @@ logme(){ :; }
 }
 # customize logger data
 logger_setup(){
+    # shellcheck disable=SC2034
     logger_process=$(printf "%6s %6s" "$UID" "$PID")
+    # shellcheck disable=SC2034
     logger_special=$(printf "%-30s - %s" "service.sh:boot-service" "init_process")
 }
 # init logger_setup
@@ -91,13 +93,13 @@ notif_int="$(getprop ro.build.version.release)"
 send_notification() {
     # disable notifications on android running older than android 10
     [ "$notif_int" -ge 10 ] && {
+        # shellcheck disable=SC2154
         # disable notifications
         if [ "$noNotifications" != true ];then
             su 2000 -c "cmd notification post -S bigtext -t 'DynMountX' 'Tag' '$(printf "$1")'"
         fi
     }
 }
-
 
 # mkdir
 mountedAppList="$MODDIR/mountedAppList.txt"
@@ -109,7 +111,7 @@ mountedAppList="$MODDIR/mountedAppList.txt"
 }
 touch "$mountedAppList"
 
-
+# shellcheck disable=SC2012
 # query applications folder list and validate
 ls -1 /data/adb/apps | while read -r PROC; do
      # export current PROC
@@ -119,10 +121,11 @@ ls -1 /data/adb/apps | while read -r PROC; do
 
         logme stats "loop(): calling manager.sh for $PROC"
         # call manager.sh
-        $MODDIR/manager.sh disableRestart disableNotificaitons
+        "$MODDIR"/manager.sh disableRestart disableNotificaitons
 
         # verify mountpoint
         if mount | grep -q "$PROC";then
+            # shellcheck disable=SC2059
             printf "\n$PROC" >> "$mountedAppList"
         fi
     else

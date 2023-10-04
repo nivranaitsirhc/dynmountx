@@ -1,5 +1,5 @@
-#!/system/bin/sh
-# shellcheck shell=bash
+#!/system/bin/ash
+# shellcheck shell=ash
 # shellcheck source=/dev/null
 
 # check module variables
@@ -100,10 +100,10 @@ path_file_tag_mounted="$path_dir_apps_module/$PROC/mounted"
 
 # logger library required variables
 # -----------------------
-# [ -z ${STAGE+x} ]  && STAGE=boot-service
-# [ -z ${PROC+x} ]   && PROC=magisk
-# [ -z ${UID+x} ]    && UID=$(id -g)
-# [ -z ${PID+x} ]    && PID=$$
+[ -z "${STAGE+x}" ]  && STAGE=standalone
+# [ -z "${PROC+x}" ]   && PROC=magisk
+[ -z "${UID+x}" ]    && UID=$(id -g)
+[ -z "${PID+x}" ]    && PID=$$
 
 # dummy logger function
 logme(){ :; }
@@ -113,7 +113,9 @@ logme(){ :; }
     [ -f "$MODDIR/lib/logger.sh" ] && . "$MODDIR/lib/logger.sh"
 }
 # customize logger data
+# shellcheck disable=SC2034
 logger_process=$(printf "%6s %6s" "$UID" "$PID")
+# shellcheck disable=SC2034
 logger_special=$(printf "%-30s - %s" "$(basename "$0"):$STAGE" "$PROC")
 
 # copy final log from instance to final log final
@@ -151,7 +153,7 @@ send_notification() {
 }
 
 # exit if PROC is not defined
-[ -z ${PROC+x} ] && {
+[ -z "${PROC+x}" ] && {
     logme error "skipping process.. \$PROC is not defined."
     clean_exit 1
 }

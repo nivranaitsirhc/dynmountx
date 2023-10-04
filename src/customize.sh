@@ -1,5 +1,5 @@
-#!/system/bin/sh
-# shellcheck shell=bash
+#!/system/bin/ash
+# shellcheck shell=ash
 # shellcheck source=/dev/null
 
 [ ! "$BOOTMODE" ]                   && abort "Install only via Magisk Manager."
@@ -107,6 +107,6 @@ set_perm "$MODPATH/service.sh"      root root 0755 u:object_r:system_file:s0
     ui_print ""
     (
         sleep 5
-        am start -a android.intent.action.VIEW -d "$MPMURL" &>/dev/null
+        am start -a android.intent.action.VIEW -d "$MPMURL" >/dev/null 2>&1
     ) &
 }
