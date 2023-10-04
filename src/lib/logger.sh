@@ -49,7 +49,6 @@ logme() {
                 [ "$logger_config_print_terminal" ] && \
                 printf "%s %s %-6s : %s --> %s\n" "$(date)" "$logger_process" "$1" "$logger_special" "$2"
             else 
-                printf "switched to default, $logger_process, $logger_special, are not available" >> "$path_file_logs"
                 printf "%s %-6s --> %s\n" "$(date)" "$1" "$2" >> "$path_file_logs"
                 [ "$logger_config_print_terminal" ] && \
                 printf "%s %-6s --> %s\n" "$(date)" "$1" "$2"
