@@ -1,4 +1,7 @@
 # Dynamic Mount ~ Changelog
+## v1.3.9 
+- b93af76 [core]          
+    - utilize old aapt2 bin during upgrade (nivranaitsirhc)    
 ## v1.3.8 
 - d71fc27 [core]          
     - rework entire code base to be ash compliant (nivranaitsirhc)    
