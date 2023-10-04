@@ -1,4 +1,11 @@
 # Dynamic Mount ~ Changelog
+## v1.3.10 
+- 6eb556d [core]          
+    - prevent parallel manager.sh exec (nivranaitsirhc)  
+- 6488bed [core]          
+    - properly format to purge shellcheck errors (nivranaitsirhc)  
+- 9c98760 [core]          
+    - update comments and information texts. (nivranaitsirhc)    
 ## v1.3.9 
 - b93af76 [core]          
     - utilize old aapt2 bin during upgrade (nivranaitsirhc)    
