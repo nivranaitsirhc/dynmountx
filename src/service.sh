@@ -2,11 +2,7 @@
 # shellcheck shell=ash
 # shellcheck source=/dev/null
 
-# Wait until boot is completed
-until [ "$(getprop sys.boot_completed)" = 1 ]; do sleep 1;done
 
-# Wait until /sdcard is mounted and available
-until [ -d "/sdcard/DynamicMountManagerX" ]; do sleep 1;done
 
 # check MODDIR definition
 [ -z ${MODDIR+x} ] && {
@@ -28,12 +24,22 @@ export MAGISKTMP
 # disable manager.sh execution from dynmount.sh
 echo 0 > "$MODDIR/bootscript"
 
+# Wait until boot is completed
+until [ "$(getprop sys.boot_completed)" = 1 ]; do sleep 1;done
+
+# Wait until /sdcard is mounted and available
+until [ -d "/sdcard/DynamicMountManagerX" ]; do sleep 1;done
+
 # manager.sh required variables
 # -----------------------
-[ -z ${STAGE+x} ]  && STAGE=boot-service
+# [ -z ${STAGE+x} ]  && STAGE=boot-service
 # [ -n ${PROC+x} ]   && PROC=magisk
-[ -z ${UID+x} ]    && UID=$(id -g)
-[ -z ${PID+x} ]    && PID=$$
+# [ -z ${UID+x} ]    && UID=$(id -g)
+# [ -z ${PID+x} ]    && PID=$$
+
+STAGE=boot-service
+UID=$(id -g)
+PID=$$
 
 export STAGE
 export UID
