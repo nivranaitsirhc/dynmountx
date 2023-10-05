@@ -550,8 +550,8 @@ init_main() {
                 logme debug "init_main() - tag:install - trying bind mode."
 
                 # define local variables
-                local version_apk_storage_base=""
-                local version_installed=""
+                local version_apk_storage_base
+                local version_installed
                 get_apk_version version_apk_storage_base    "$path_file_apk_storage_base"
                 get_apk_version version_installed           "$PROC"
 
@@ -568,14 +568,17 @@ init_main() {
                         installed_path="$(pm path "$PROC" | head -1 | sed 's/^package://g' )"
 
                         # copy base.apk
-                        if cp -rf "$installed_path" "$path_file_apk_module_orig";then
+                        if cp -f "$installed_path" "$path_file_apk_module_orig";then
                             # set permissions for apk files.
                             set_permissions_recursive "$path_dir_apps_module/$PROC" "root" "root" 0755 0644 u:object_r:magisk_file:s0
-                            # call install_bind in bind mode.
-                            install_bind bind
+                            logme debug "init_main() - tag:install - backup installed as original.apk"
                         else
                             logme error "init_main() - tag:install - failed to copy original base apk from installed path"
                         fi
+                        
+                        # call install_bind in bind mode.
+                        logme infor "init_main() - tag:install - calling install_bind in bind mode."
+                        install_bind bind
                     else
                         logme error "init_main() - tag:install - failed to copy base.apk to module app dir"
                     fi
