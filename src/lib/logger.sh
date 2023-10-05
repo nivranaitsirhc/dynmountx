@@ -1,4 +1,4 @@
-#!/system/bin/ash
+#!/system/bin/sh
 # shellcheck shell=ash
 # * this file is meant to be sourced only
 # * moudule for logging

@@ -1,4 +1,4 @@
-#!/system/bin/ash
+#!/system/bin/sh
 # shellcheck shell=ash
 # shellcheck source=/dev/null
 

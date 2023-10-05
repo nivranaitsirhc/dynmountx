@@ -1,4 +1,4 @@
-#!/system/bin/ash
+#!/system/bin/sh
 # shellcheck shell=ash
 # shellcheck source=/dev/null
 
@@ -180,9 +180,8 @@ if [ -f "$path_file_tag_process" ];then
     # get last count
     runningCount=$(cat "$path_file_tag_process")
     # check runningCount if is a valid number
-    re='^[0-9]+$'
-    # shellcheck disable=SC3010
-    if [[ $runningCount =~ $re ]]; then
+
+    if printf %d "runningCount" > /dev/null 2>&1; then
         # check if running is within threshold of 2
         if [ "$runningCount" -gt "1" ]; then
             logme debug "tag:running - reached the max allowed skip. proceeding.."

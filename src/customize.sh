@@ -1,4 +1,4 @@
-#!/system/bin/ash
+#!/system/bin/sh
 # shellcheck shell=ash
 # shellcheck source=/dev/null
 
@@ -47,7 +47,7 @@ download_aapt2() {
 [ ! -d "$MODPATH/bin" ] && mkdir -p "$MODPATH/bin"
 
 # define bin path
-app_bin="/data/adb/modules/$MODNAME/bin"
+app_bin="/data/adb/modules/dynmountx/bin"
 # upgrade
 if [ -d "$app_bin" ]; then
     ui_print " - Upgrade detected."
@@ -70,7 +70,7 @@ else
 fi
 
 # define internal storage path
-internal_storage_dir="/sdcard/$MODNAME"
+internal_storage_dir="/sdcard/DynamicMountManagerX"
 # setup new sdcard dir
 [ ! -d "$internal_storage_dir" ] && {
     ui_print " - Setting up Internal Storage directory.."
