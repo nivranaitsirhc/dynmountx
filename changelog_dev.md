@@ -1,4 +1,13 @@
 # Dynamic Mount ~ Changelog
+## v1.3.11 
+- a3b9387 [core]          
+    - create bootscript earlier if boot-up is taking too long (nivranaitsirhc)  
+- 8c2eb40 [core]          
+    - fix wrong call in tag: install (nivranaitsirhc)  
+- 693de5d [fix]           
+    - revert v1.3.10 changes for customize.sh (nivranaitsirhc)  
+- 737d79b [builder]       
+    - debug call are preserved in rel channel (nivranaitsirhc)    
 ## v1.3.10 
 - 6eb556d [core]          
     - prevent parallel manager.sh exec (nivranaitsirhc)  
